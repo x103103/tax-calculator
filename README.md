@@ -15,7 +15,7 @@ npm install
 ### Fetching a Google Spreadsheet as CSV
 
 ```javascript
-const { fetchGoogleSheetAsCSV } = require('./fetch-spreadsheet');
+const { fetchGoogleSheetAsCSV } = require('./app/services/fetch-spreadsheet');
 
 // Get the spreadsheet ID from the Google Sheets URL
 // https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=SHEET_ID
