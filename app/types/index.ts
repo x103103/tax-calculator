@@ -6,6 +6,7 @@ export interface ClosedPositionRow extends Record<string, string> {
   FifoPnlRealized: string;
   TradeDate: string;
   OpenDateTime: string;
+  TransactionID: string;
   TRNT: string;
 }
 
@@ -13,6 +14,7 @@ export interface TradeRow extends Record<string, string> {
   Symbol: string;
   DateTime: string;
   TradeDate: string;
+  TransactionID: string;
   IBCommission: string;
   'Buy/Sell': 'BUY' | 'SELL';
   TRNT: string;

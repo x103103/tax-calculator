@@ -17,11 +17,11 @@ describe('calculateBuyFees', () => {
     });
 
     const positions = [
-      { Symbol: 'AAPL', OpenDateTime: '20240101;100000' }
+      { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' }
     ];
 
     const buyTradesMap = new Map([
-      ['AAPL_20240101;100000', { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20240101' }]
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20240101' }]
     ]);
 
     const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -33,14 +33,14 @@ describe('calculateBuyFees', () => {
 
   it('throws error when buy trade not found', async () => {
     const positions = [
-      { Symbol: 'AAPL', OpenDateTime: '20240101;100000' }
+      { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN999' }
     ];
 
     const buyTradesMap = new Map(); // Empty map
 
     await expect(
       calculateBuyFees(positions, buyTradesMap, mockRateService)
-    ).rejects.toThrow('Buy trade not found for AAPL at 20240101;100000');
+    ).rejects.toThrow('Buy trade not found for TransactionID TXN999');
   });
 
   it('applies Math.abs to commission', async () => {
@@ -51,11 +51,11 @@ describe('calculateBuyFees', () => {
     });
 
     const positions = [
-      { Symbol: 'AAPL', OpenDateTime: '20240101;100000' }
+      { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' }
     ];
 
     const buyTradesMap = new Map([
-      ['AAPL_20240101;100000', { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20240101' }]
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20240101' }]
     ]);
 
     const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -71,11 +71,11 @@ describe('calculateBuyFees', () => {
     });
 
     const positions = [
-      { Symbol: 'MSFT', OpenDateTime: '20240215;093000' }
+      { Symbol: 'MSFT', OpenDateTime: '20240215;093000', TransactionID: 'TXN002' }
     ];
 
     const buyTradesMap = new Map([
-      ['MSFT_20240215;093000', { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20240215' }]
+      ['TXN002', { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20240215' }]
     ]);
 
     const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -98,13 +98,13 @@ describe('calculateBuyFees', () => {
     });
 
     const positions = [
-      { Symbol: 'AAPL', OpenDateTime: '20240101;100000' },
-      { Symbol: 'GOOGL', OpenDateTime: '20240102;110000' }
+      { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' },
+      { Symbol: 'GOOGL', OpenDateTime: '20240102;110000', TransactionID: 'TXN003' }
     ];
 
     const buyTradesMap = new Map([
-      ['AAPL_20240101;100000', { Symbol: 'AAPL', IBCommission: '-1.00', TradeDate: '20240101' }],
-      ['GOOGL_20240102;110000', { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20240102' }]
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.00', TradeDate: '20240101' }],
+      ['TXN003', { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20240102' }]
     ]);
 
     const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);

@@ -47,7 +47,7 @@ export class TradeRepository implements ITradeRepository {
   }
 
   /**
-   * Build map of buy trades keyed by Symbol_DateTime
+   * Build map of buy trades keyed by TransactionID
    */
   #buildBuyTradesMap(
     trades2024: TradeRow[],
@@ -56,7 +56,7 @@ export class TradeRepository implements ITradeRepository {
     const map = new Map<string, TradeRow>();
 
     const addToMap = (trade: TradeRow): void => {
-      const key = `${trade.Symbol}_${trade.DateTime}`;
+      const key = trade.TransactionID;
       map.set(key, trade);
     };
 

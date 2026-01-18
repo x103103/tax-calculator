@@ -4,7 +4,7 @@ import { convertToPlnWithDate, formatDate } from '../services/currency-converter
 /**
  * Calculate buy fees from closed positions and their matching buy trades
  * @param closedPositions - Array of closed position objects
- * @param buyTradesMap - Map of buy trades keyed by Symbol_OpenDateTime
+ * @param buyTradesMap - Map of buy trades keyed by TransactionID
  * @param rateService - Rate service with getRateForPreviousDay method
  * @returns Fees with totalUsd, totalPln, and details array
  * @throws Error If buy trade not found for a position (fail fast)
@@ -20,12 +20,10 @@ export async function calculateBuyFees(
 
   for (const position of closedPositions) {
     const symbol = position.Symbol;
-    const openDateTime = position.OpenDateTime;
-    const key = `${symbol}_${openDateTime}`;
 
-    const buyTrade = buyTradesMap.get(key);
+    const buyTrade = buyTradesMap.get(position.TransactionID);
     if (!buyTrade) {
-      throw new Error(`Buy trade not found for ${symbol} at ${openDateTime}`);
+      throw new Error(`Buy trade not found for TransactionID ${position.TransactionID}`);
     }
 
     const feeUsd = Math.abs(parseFloat(buyTrade.IBCommission) || 0);

@@ -48,14 +48,14 @@ describe('TradeRepository', () => {
       expect(result.closedPositions.map((p) => p.Symbol)).toEqual(['GOOG', 'MSFT']);
     });
 
-    it('builds buyTradesMap with Symbol_DateTime key', async () => {
+    it('builds buyTradesMap with TransactionID key', async () => {
       const closedData = [];
       const trades2024 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
-        { Symbol: 'AAPL', DateTime: '20240615', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'AAPL', DateTime: '20240615', TransactionID: 'TXN002', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
       ];
       const trades2025 = [
-        { Symbol: 'MSFT', DateTime: '20250110', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'MSFT', DateTime: '20250110', TransactionID: 'TXN003', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
       ];
 
       loadCsv
@@ -66,17 +66,17 @@ describe('TradeRepository', () => {
       const result = await repo.load(config);
 
       expect(result.buyTradesMap.size).toBe(3);
-      expect(result.buyTradesMap.get('GOOG_20240101')).toEqual(trades2024[0]);
-      expect(result.buyTradesMap.get('AAPL_20240615')).toEqual(trades2024[1]);
-      expect(result.buyTradesMap.get('MSFT_20250110')).toEqual(trades2025[0]);
+      expect(result.buyTradesMap.get('TXN001')).toEqual(trades2024[0]);
+      expect(result.buyTradesMap.get('TXN002')).toEqual(trades2024[1]);
+      expect(result.buyTradesMap.get('TXN003')).toEqual(trades2025[0]);
     });
 
     it('2025 trades overwrite 2024 in buyTradesMap for same key', async () => {
       const trades2024 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TRNT: 'TRNT', source: '2024' },
+        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2024' },
       ];
       const trades2025 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TRNT: 'TRNT', source: '2025' },
+        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2025' },
       ];
 
       loadCsv
@@ -86,7 +86,7 @@ describe('TradeRepository', () => {
 
       const result = await repo.load(config);
 
-      expect(result.buyTradesMap.get('GOOG_20240101').source).toBe('2025');
+      expect(result.buyTradesMap.get('TXN001').source).toBe('2025');
     });
 
     it('collects SELL trades from 2025 only', async () => {
