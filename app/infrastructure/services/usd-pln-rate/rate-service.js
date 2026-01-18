@@ -1,24 +1,33 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs').promises;
 
 /**
  * USD to PLN Rate Service
  * Retrieves exchange rates with recursive fallback to previous days
  */
 class UsdPlnRateService {
-  constructor() {
+  /**
+   * @param {string} csvPath - Path to the CSV file containing rates
+   */
+  constructor(csvPath) {
+    if (!csvPath) {
+      throw new Error('csvPath is required');
+    }
+    this.csvPath = csvPath;
     this.rates = new Map();
-    this.csvPath = path.join(__dirname, '../../data/spreadsheet-tabs/rates.csv');
-    this.loadRates();
+    this.loaded = false;
   }
 
   /**
    * Load rates from CSV file into memory
+   * Must be called after construction before using other methods
+   * @returns {Promise<void>}
    */
-  loadRates() {
+  async load() {
     try {
-      const csvData = fs.readFileSync(this.csvPath, 'utf-8');
+      const csvData = await fs.readFile(this.csvPath, 'utf-8');
       const lines = csvData.trim().split('\n');
+
+      this.rates.clear();
 
       // Skip header line
       for (let i = 1; i < lines.length; i++) {
@@ -28,10 +37,9 @@ class UsdPlnRateService {
         }
       }
 
-      console.log(`Loaded ${this.rates.size} exchange rates from ${this.csvPath}`);
+      this.loaded = true;
     } catch (error) {
-      console.error('Error loading rates:', error.message);
-      throw error;
+      throw new Error(`Failed to load rates from ${this.csvPath}: ${error.message}`);
     }
   }
 
@@ -44,22 +52,20 @@ class UsdPlnRateService {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     const previousDay = new Date(dateObj);
     previousDay.setDate(previousDay.getDate() - 1);
-
     return previousDay.toISOString().split('T')[0];
   }
 
   /**
    * Recursively get the USD to PLN rate for the previous day
-   * If the previous day doesn't exist, checks the day before that, and so on
-   * @param {string|Date} date - Date to get the rate for (YYYY-MM-DD or Date object)
+   * @param {string|Date} date - Date to get the rate for
    * @param {number} maxAttempts - Maximum number of days to look back (default: 30)
    * @returns {Object} Object containing the date and rate found
    * @throws {Error} If no rate is found within maxAttempts days
    */
   getRateForPreviousDay(date, maxAttempts = 30) {
+    this._ensureLoaded();
     const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
     const previousDay = this.getPreviousDay(dateStr);
-
     return this._getRateRecursive(previousDay, maxAttempts, 0);
   }
 
@@ -72,14 +78,12 @@ class UsdPlnRateService {
    * @private
    */
   _getRateRecursive(dateStr, maxAttempts, currentAttempt) {
-    // Base case: exceeded maximum attempts
     if (currentAttempt >= maxAttempts) {
       throw new Error(
         `No rate found for ${dateStr} after checking ${maxAttempts} days back`
       );
     }
 
-    // Check if rate exists for this date
     if (this.rates.has(dateStr)) {
       return {
         date: dateStr,
@@ -88,19 +92,18 @@ class UsdPlnRateService {
       };
     }
 
-    // Recursive case: try the previous day
     const previousDay = this.getPreviousDay(dateStr);
     return this._getRateRecursive(previousDay, maxAttempts, currentAttempt + 1);
   }
 
   /**
-   * Get a rate for a specific date (not necessarily previous day)
-   * This is a convenience method for direct lookups with fallback
+   * Get a rate for a specific date
    * @param {string|Date} date - Date to get the rate for
    * @param {boolean} useFallback - Whether to use recursive fallback (default: false)
    * @returns {Object|null} Object containing date and rate, or null if not found
    */
   getRate(date, useFallback = false) {
+    this._ensureLoaded();
     const dateStr = typeof date === 'string' ? date : date.toISOString().split('T')[0];
 
     if (this.rates.has(dateStr)) {
@@ -119,22 +122,22 @@ class UsdPlnRateService {
   }
 
   /**
-   * Reload rates from CSV (useful if the file is updated)
+   * Reload rates from CSV
+   * @returns {Promise<void>}
    */
-  reload() {
-    this.rates.clear();
-    this.loadRates();
+  async reload() {
+    await this.load();
+  }
+
+  /**
+   * Ensure rates are loaded before accessing
+   * @private
+   */
+  _ensureLoaded() {
+    if (!this.loaded) {
+      throw new Error('Rates not loaded. Call load() first.');
+    }
   }
 }
 
-// Create a singleton instance
-const rateService = new UsdPlnRateService();
-
-module.exports = {
-  UsdPlnRateService,
-  rateService,
-  getRateForPreviousDay: (date, maxAttempts) =>
-    rateService.getRateForPreviousDay(date, maxAttempts),
-  getRate: (date, useFallback) =>
-    rateService.getRate(date, useFallback)
-};
+module.exports = { UsdPlnRateService };
