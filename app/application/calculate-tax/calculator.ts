@@ -3,13 +3,13 @@
  * Coordinates all layers to calculate Polish tax on trading profits
  */
 
-import { TradeRepository } from '../../infrastructure/repositories/trade-repository';
-import { UsdPlnRateService } from '../../infrastructure/services/usd-pln-rate';
-import { calculateProfits } from '../../domain/calculators/profit-calculator';
+import { defaultConfig } from '../../config';
 import { calculateBuyFees } from '../../domain/calculators/buy-fee-calculator';
+import { calculateProfits } from '../../domain/calculators/profit-calculator';
 import { calculateSellFees } from '../../domain/calculators/sell-fee-calculator';
 import { calculateTax } from '../../domain/calculators/tax-calculator';
-import { defaultConfig } from '../../config';
+import { TradeRepository } from '../../infrastructure/repositories/trade-repository';
+import { UsdPlnRateService } from '../../infrastructure/services/usd-pln-rate';
 import type {
   TaxConfig,
   TaxSummary,

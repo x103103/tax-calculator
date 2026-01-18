@@ -1,5 +1,5 @@
-import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 import { ClosedPositionRow, TradeRow, FeeResult, IRateService } from '../../types/index';
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 
 /**
  * Calculate buy fees from closed positions and their matching buy trades

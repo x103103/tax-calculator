@@ -16,8 +16,8 @@ describe('formatDate', () => {
   it('returns short/invalid input unchanged', () => {
     expect(formatDate('2025')).toBe('2025');
     expect(formatDate('')).toBe('');
-    expect(formatDate(null)).toBe(null);
-    expect(formatDate(undefined)).toBe(undefined);
+    expect(formatDate(null)).toBeNull();
+    expect(formatDate(undefined)).toBeUndefined();
   });
 });
 

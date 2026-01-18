@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+
 import type { IRateService, RateInfo } from '../../../types';
 
 /**

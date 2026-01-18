@@ -1,6 +1,7 @@
 import path from 'path';
-import { TaxCalculator } from '../calculator';
+
 import { createConfig } from '../../../config';
+import { TaxCalculator } from '../calculator';
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 const testConfig = createConfig({

@@ -57,10 +57,10 @@ function printTaxCalculation(report: TaxReport | TaxSummary): void {
   console.log(`Profit:          ${report.profits.toFixed(2)} PLN`);
   console.log(`Buy Fees:      - ${report.buyFees.toFixed(2)} PLN`);
   console.log(`Sell Fees:     - ${report.sellFees.toFixed(2)} PLN`);
-  console.log(`${'='.repeat(50)}`);
+  console.log('='.repeat(50));
   console.log(`Taxable Base:    ${report.taxableBase.toFixed(2)} PLN`);
   console.log(`Tax Rate:        ${taxRatePercent}%`);
-  console.log(`${'='.repeat(50)}`);
+  console.log('='.repeat(50));
   console.log(`TAX OWED:        ${report.taxOwed.toFixed(2)} PLN`);
   console.log(`${'='.repeat(50)}\n`);
 }

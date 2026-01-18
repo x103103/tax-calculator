@@ -3,8 +3,8 @@
  * Main script for running tax calculation from command line
  */
 
-import { generateReport } from '../../application';
 import { printReport } from './console-reporter';
+import { generateReport } from '../../application';
 
 export async function main(): Promise<void> {
   try {

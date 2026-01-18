@@ -1,4 +1,3 @@
-import { loadCsv } from '../data/csv-loader';
 import type {
   ITradeRepository,
   TradeRepositoryConfig,
@@ -6,6 +5,7 @@ import type {
   ClosedPositionRow,
   TradeRow,
 } from '../../types';
+import { loadCsv } from '../data/csv-loader';
 
 /**
  * Repository for loading and indexing trade data from CSV files

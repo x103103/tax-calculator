@@ -1,5 +1,5 @@
-import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 import { ClosedPositionRow, ProfitResult, IRateService } from '../../types/index';
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 
 /**
  * Calculate realized profits from closed positions

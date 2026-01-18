@@ -1,5 +1,5 @@
 {
-  "name": "claude-phone",
+  "name": "tax-calculator",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,11 +11,13 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
-    "url": "http://local_proxy@127.0.0.1:49063/git/x103103/claude-phone"
+    "url": "https://github.com/x103103/tax-calculator"
   },
   "keywords": [],
   "author": "",
@@ -24,12 +26,18 @@
     "axios": "^1.13.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/eslint__js": "^9.14.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.10.9",
+    "eslint": "^9.39.2",
+    "eslint-plugin-import-x": "^4.16.1",
+    "eslint-plugin-jest": "^29.12.1",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.53.0"
   },
   "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
 }

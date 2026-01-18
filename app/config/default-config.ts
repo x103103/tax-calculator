@@ -4,6 +4,7 @@
  */
 
 import path from 'path';
+
 import type { TaxConfig, ConfigOverrides } from '../types';
 
 const DATA_DIR = path.join(__dirname, '../../tmp/data/spreadsheet-tabs');

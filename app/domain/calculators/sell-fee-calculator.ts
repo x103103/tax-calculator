@@ -1,5 +1,5 @@
-import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 import { TradeRow, FeeResult, IRateService } from '../../types/index';
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 
 /**
  * Calculate sell fees from sell trades

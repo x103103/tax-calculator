@@ -20,7 +20,7 @@ Tax = ((Profits) - (Buy Fees) - (Sell Fees)) × 19%
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## Usage
@@ -29,13 +29,13 @@ npm install
 
 **Development (with ts-node):**
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 **Production (compiled):**
 ```bash
-npm run build
-npm start
+pnpm run build
+pnpm start
 ```
 
 ### Programmatic Usage
@@ -68,10 +68,10 @@ main();
 ### Run Tests
 
 ```bash
-npm test                  # Run all tests
-npm run test:watch        # Watch mode
-npm run test:coverage     # With coverage report
-npm run type-check        # Type check without building
+pnpm test                  # Run all tests
+pnpm run test:watch        # Watch mode
+pnpm run test:coverage     # With coverage report
+pnpm run type-check        # Type check without building
 ```
 
 ## Architecture
@@ -222,18 +222,18 @@ Core types defined in `app/types/index.ts`:
 
 **Development mode** (watches TS files, uses ts-node):
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 **Type checking** (without building):
 ```bash
-npm run type-check
+pnpm run type-check
 ```
 
 **Production build** (compiles to dist/):
 ```bash
-npm run build
-npm start
+pnpm run build
+pnpm start
 ```
 
 ### Configuration
@@ -291,6 +291,7 @@ try {
 ## Requirements
 
 - **Node.js**: 24.13.0 LTS (managed via asdf)
+- **pnpm**: 10.28.0
 - **TypeScript**: 5.9.3+
 - **Runtime**: CommonJS
 - **Dependencies**:
