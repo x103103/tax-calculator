@@ -1,5 +1,5 @@
-import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 import { IRateService } from '../../types/index';
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
 
 describe('formatDate', () => {
   it('converts YYYYMMDD to YYYY-MM-DD', () => {
@@ -17,8 +17,8 @@ describe('formatDate', () => {
   it('returns short/invalid input unchanged', () => {
     expect(formatDate('2025')).toBe('2025');
     expect(formatDate('')).toBe('');
-    expect(formatDate(null as any)).toBeNull();
-    expect(formatDate(undefined as any)).toBeUndefined();
+    expect(formatDate(null as unknown as string)).toBeNull();
+    expect(formatDate(undefined as unknown as string)).toBeUndefined();
   });
 });
 
@@ -58,7 +58,7 @@ describe('convertToPlnWithDate', () => {
 
     convertToPlnWithDate(100, '20250122', mockRateService);
 
-    expect(mockRateService.getRateForPreviousDay).toHaveBeenCalledWith('2025-01-22');
+    expect(mockRateService.getRateForPreviousDay).toHaveBeenCalledWith('2025-01-22'); // eslint-disable-line @typescript-eslint/unbound-method
   });
 
   it('returns correct metadata', () => {

@@ -1,13 +1,14 @@
 import { promises as fs } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+
 import { UsdPlnRateService } from '../rate-service';
 
 describe('UsdPlnRateService', () => {
   let tempDir: string;
   let csvPath: string;
 
-  const createCsv = async (content: string) => {
+  const createCsv = async (content: string): Promise<void> => {
     await fs.writeFile(csvPath, content, 'utf-8');
   };
 
@@ -22,7 +23,7 @@ describe('UsdPlnRateService', () => {
 
   describe('constructor', () => {
     it('throws if csvPath not provided', () => {
-      expect(() => new (UsdPlnRateService as any)()).toThrow('csvPath is required');
+      expect(() => new (UsdPlnRateService as unknown as new (path?: string) => UsdPlnRateService)()).toThrow('csvPath is required');
     });
 
     it('accepts custom csvPath', () => {
@@ -32,8 +33,8 @@ describe('UsdPlnRateService', () => {
 
     it('does not load rates in constructor', () => {
       const service = new UsdPlnRateService(csvPath);
-      expect((service as any).loaded).toBe(false);
-      expect((service as any).rates.size).toBe(0);
+      expect(service.loaded).toBe(false);
+      expect(service.rates.size).toBe(0);
     });
   });
 
@@ -44,9 +45,9 @@ describe('UsdPlnRateService', () => {
 
       await service.load();
 
-      expect((service as any).loaded).toBe(true);
-      expect((service as any).rates.size).toBe(2);
-      expect((service as any).rates.get('2025-01-15')).toBe(4.05);
+      expect(service.loaded).toBe(true);
+      expect(service.rates.size).toBe(2);
+      expect(service.rates.get('2025-01-15')).toBe(4.05);
     });
 
     it('throws for missing file', async () => {
@@ -61,7 +62,7 @@ describe('UsdPlnRateService', () => {
 
       await service.load();
 
-      expect((service as any).rates.size).toBe(0);
+      expect(service.rates.size).toBe(0);
     });
 
     it('skips malformed lines', async () => {
@@ -70,7 +71,7 @@ describe('UsdPlnRateService', () => {
 
       await service.load();
 
-      expect((service as any).rates.size).toBe(2);
+      expect(service.rates.size).toBe(2);
     });
   });
 
@@ -91,7 +92,7 @@ describe('UsdPlnRateService', () => {
       await service.load();
     });
 
-    it('throws if not loaded', async () => {
+    it('throws if not loaded', () => {
       const unloaded = new UsdPlnRateService(csvPath);
       expect(() => unloaded.getRateForPreviousDay('2025-01-16'))
         .toThrow('Rates not loaded');
@@ -146,7 +147,7 @@ describe('UsdPlnRateService', () => {
       await service.load();
     });
 
-    it('throws if not loaded', async () => {
+    it('throws if not loaded', () => {
       const unloaded = new UsdPlnRateService(csvPath);
       expect(() => unloaded.getRate('2025-01-15')).toThrow('Rates not loaded');
     });
@@ -154,9 +155,9 @@ describe('UsdPlnRateService', () => {
     it('returns rate for exact date', () => {
       const result = service.getRate('2025-01-15');
 
-      expect(result!.date).toBe('2025-01-15');
-      expect(result!.rate).toBe(4.03);
-      expect(result!.daysBack).toBe(0);
+      expect(result?.date).toBe('2025-01-15');
+      expect(result?.rate).toBe(4.03);
+      expect(result?.daysBack).toBe(0);
     });
 
     it('returns null for missing date without fallback', () => {
@@ -167,14 +168,14 @@ describe('UsdPlnRateService', () => {
     it('uses fallback when enabled', () => {
       const result = service.getRate('2025-01-14', true);
 
-      expect(result!.date).toBe('2025-01-13');
-      expect(result!.rate).toBe(4.01);
-      expect(result!.daysBack).toBe(2); // 14(1)->13(2) found
+      expect(result?.date).toBe('2025-01-13');
+      expect(result?.rate).toBe(4.01);
+      expect(result?.daysBack).toBe(2); // 14(1)->13(2) found
     });
 
     it('accepts Date object', () => {
       const result = service.getRate(new Date('2025-01-15'));
-      expect(result!.rate).toBe(4.03);
+      expect(result?.rate).toBe(4.03);
     });
   });
 
@@ -184,14 +185,14 @@ describe('UsdPlnRateService', () => {
       const service = new UsdPlnRateService(csvPath);
       await service.load();
 
-      expect((service as any).rates.get('2025-01-15')).toBe(4.00);
+      expect(service.rates.get('2025-01-15')).toBe(4.00);
 
       // Update file
       await createCsv('date,rate\n2025-01-15,4.50\n2025-01-16,4.60');
       await service.reload();
 
-      expect((service as any).rates.get('2025-01-15')).toBe(4.50);
-      expect((service as any).rates.get('2025-01-16')).toBe(4.60);
+      expect(service.rates.get('2025-01-15')).toBe(4.50);
+      expect(service.rates.get('2025-01-16')).toBe(4.60);
     });
   });
 

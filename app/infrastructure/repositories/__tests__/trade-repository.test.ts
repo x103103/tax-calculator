@@ -1,6 +1,6 @@
+import { ClosedPositionRow, TradeRow, TradeRepositoryConfig } from '../../../types';
 import { loadCsv } from '../../data/csv-loader';
 import { TradeRepository } from '../trade-repository';
-import { ClosedPositionRow, TradeRow, TradeRepositoryConfig } from '../../../types';
 
 jest.mock('../../data/csv-loader');
 
@@ -89,8 +89,8 @@ describe('TradeRepository', () => {
 
       const result = await repo.load(config);
 
-      expect(result.buyTradesMap.get('TXN001')!.Symbol).toBe('GOOG');
-      expect((result.buyTradesMap.get('TXN001') as any).source).toBe('2025');
+      expect(result.buyTradesMap.get('TXN001')?.Symbol).toBe('GOOG');
+      expect((result.buyTradesMap.get('TXN001') as unknown as { source: string }).source).toBe('2025');
     });
 
     it('collects SELL trades from 2025 only', async () => {

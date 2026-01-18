@@ -1,5 +1,5 @@
-import { calculateProfits } from '../calculators/profit-calculator';
 import { ClosedPositionRow, IRateService } from '../../types/index';
+import { calculateProfits } from '../calculators/profit-calculator';
 
 describe('calculateProfits', () => {
   const mockRateService = {

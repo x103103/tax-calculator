@@ -1,5 +1,5 @@
-import { calculateSellFees } from '../calculators/sell-fee-calculator';
 import { TradeRow, IRateService } from '../../types/index';
+import { calculateSellFees } from '../calculators/sell-fee-calculator';
 
 describe('calculateSellFees', () => {
   const mockRateService = {
