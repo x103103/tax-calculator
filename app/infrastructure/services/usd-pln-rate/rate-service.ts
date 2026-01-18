@@ -99,15 +99,18 @@ export class UsdPlnRateService implements IRateService {
   #getRateRecursive(dateStr: string, maxAttempts: number, currentAttempt: number): RateInfo {
     if (currentAttempt >= maxAttempts) {
       throw new Error(
-        `No rate found for ${dateStr} after checking ${maxAttempts} days back`
+        `No rate found for ${dateStr} after checking ${maxAttempts.toString()} days back`
       );
     }
 
     if (this.#rates.has(dateStr)) {
       const rate = this.#rates.get(dateStr);
+      if (rate === undefined) {
+        throw new Error(`Unexpected undefined rate for date: ${dateStr}`);
+      }
       return {
         date: dateStr,
-        rate: rate!,
+        rate,
         daysBack: currentAttempt + 1,
       };
     }
@@ -128,9 +131,12 @@ export class UsdPlnRateService implements IRateService {
 
     if (this.#rates.has(dateStr)) {
       const rate = this.#rates.get(dateStr);
+      if (rate === undefined) {
+        throw new Error(`Unexpected undefined rate for date: ${dateStr}`);
+      }
       return {
         date: dateStr,
-        rate: rate!,
+        rate,
         daysBack: 0,
       };
     }

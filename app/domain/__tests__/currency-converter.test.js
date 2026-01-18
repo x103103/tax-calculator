@@ -30,14 +30,14 @@ describe('convertToPlnWithDate', () => {
     jest.clearAllMocks();
   });
 
-  it('converts USD to PLN using rate service', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('converts USD to PLN using rate service', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2025-01-21',
       daysBack: 1
     });
 
-    const result = await convertToPlnWithDate(100, '2025-01-22', mockRateService);
+    const result = convertToPlnWithDate(100, '2025-01-22', mockRateService);
 
     expect(result.amountPln).toBe(400);
     expect(result.rate).toBe(4.0);
@@ -45,26 +45,26 @@ describe('convertToPlnWithDate', () => {
     expect(result.daysBack).toBe(1);
   });
 
-  it('formats date before lookup', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('formats date before lookup', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2025-01-21',
       daysBack: 1
     });
 
-    await convertToPlnWithDate(100, '20250122', mockRateService);
+    convertToPlnWithDate(100, '20250122', mockRateService);
 
     expect(mockRateService.getRateForPreviousDay).toHaveBeenCalledWith('2025-01-22');
   });
 
-  it('returns correct metadata', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('returns correct metadata', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 3.95,
       date: '2025-01-19',
       daysBack: 3
     });
 
-    const result = await convertToPlnWithDate(50, '2025-01-22', mockRateService);
+    const result = convertToPlnWithDate(50, '2025-01-22', mockRateService);
 
     expect(result).toEqual({
       amountPln: 197.5,
@@ -74,13 +74,13 @@ describe('convertToPlnWithDate', () => {
     });
   });
 
-  it('propagates rate service errors', async () => {
-    mockRateService.getRateForPreviousDay.mockRejectedValue(
-      new Error('No rate found')
-    );
+  it('propagates rate service errors', () => {
+    mockRateService.getRateForPreviousDay.mockImplementation(() => {
+      throw new Error('No rate found');
+    });
 
-    await expect(
-      convertToPlnWithDate(100, '2025-01-22', mockRateService)
-    ).rejects.toThrow('No rate found');
+    expect(
+      () => convertToPlnWithDate(100, '2025-01-22', mockRateService)
+    ).toThrow('No rate found');
   });
 });

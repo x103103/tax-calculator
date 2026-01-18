@@ -1,7 +1,7 @@
-const { fetchGoogleSheetAsCSV } = require('./fetch-service');
-
 const fs = require('fs').promises;
 const path = require('path');
+
+const { fetchGoogleSheetAsCSV } = require('./fetch-service');
 
 const SPREADSHEET_ID = '1BljW-SI44Otuq6Tf0DtzNuB9BBGg8p9Ntxfu7jU1Hfw';
 
@@ -59,7 +59,7 @@ async function main() {
 
 if (require.main === module) {
   main()
-    .then(tabs => {
+    .then(() => {
       console.log('\n✓ Complete!');
       process.exit(0);
     })

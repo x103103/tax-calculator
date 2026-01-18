@@ -9,8 +9,8 @@ describe('calculateProfits', () => {
     jest.clearAllMocks();
   });
 
-  it('calculates profits from closed positions', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('calculates profits from closed positions', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2025-01-21',
       daysBack: 1
@@ -21,15 +21,15 @@ describe('calculateProfits', () => {
       { Symbol: 'GOOGL', FifoPnlRealized: '200.00', TradeDate: '20250123' }
     ];
 
-    const result = await calculateProfits(positions, mockRateService);
+    const result = calculateProfits(positions, mockRateService);
 
     expect(result.totalUsd).toBeCloseTo(300.50);
     expect(result.totalPln).toBeCloseTo(1202.00);
     expect(result.details).toHaveLength(2);
   });
 
-  it('returns details with correct structure', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('returns details with correct structure', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2025-01-21',
       daysBack: 1
@@ -39,7 +39,7 @@ describe('calculateProfits', () => {
       { Symbol: 'MSFT', FifoPnlRealized: '50.00', TradeDate: '20250122' }
     ];
 
-    const result = await calculateProfits(positions, mockRateService);
+    const result = calculateProfits(positions, mockRateService);
 
     expect(result.details[0]).toEqual({
       symbol: 'MSFT',
@@ -51,16 +51,16 @@ describe('calculateProfits', () => {
     });
   });
 
-  it('handles empty positions array', async () => {
-    const result = await calculateProfits([], mockRateService);
+  it('handles empty positions array', () => {
+    const result = calculateProfits([], mockRateService);
 
     expect(result.totalUsd).toBe(0);
     expect(result.totalPln).toBe(0);
     expect(result.details).toEqual([]);
   });
 
-  it('handles missing/invalid FifoPnlRealized', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('handles missing/invalid FifoPnlRealized', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2025-01-21',
       daysBack: 1
@@ -71,23 +71,23 @@ describe('calculateProfits', () => {
       { Symbol: 'GOOGL', TradeDate: '20250122' }
     ];
 
-    const result = await calculateProfits(positions, mockRateService);
+    const result = calculateProfits(positions, mockRateService);
 
     expect(result.totalUsd).toBe(0);
     expect(result.totalPln).toBe(0);
   });
 
-  it('aggregates totals correctly', async () => {
+  it('aggregates totals correctly', () => {
     mockRateService.getRateForPreviousDay
-      .mockResolvedValueOnce({ rate: 4.0, date: '2025-01-21', daysBack: 1 })
-      .mockResolvedValueOnce({ rate: 3.9, date: '2025-01-22', daysBack: 1 });
+      .mockReturnValueOnce({ rate: 4.0, date: '2025-01-21', daysBack: 1 })
+      .mockReturnValueOnce({ rate: 3.9, date: '2025-01-22', daysBack: 1 });
 
     const positions = [
       { Symbol: 'AAPL', FifoPnlRealized: '100', TradeDate: '20250122' },
       { Symbol: 'GOOGL', FifoPnlRealized: '100', TradeDate: '20250123' }
     ];
 
-    const result = await calculateProfits(positions, mockRateService);
+    const result = calculateProfits(positions, mockRateService);
 
     expect(result.totalUsd).toBe(200);
     expect(result.totalPln).toBe(790); // 100*4.0 + 100*3.9

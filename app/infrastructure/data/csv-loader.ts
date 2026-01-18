@@ -6,16 +6,16 @@ import { promises as fs } from 'fs';
  * @param headers - Column headers
  * @returns Parsed row object
  */
-function parseCsvLine<T extends Record<string, string>>(
+function parseCsvLine(
   line: string,
   headers: string[]
-): T {
+): Record<string, string> {
   const values = line.split(',');
   const obj: Record<string, string> = {};
   headers.forEach((header, index) => {
     obj[header] = values[index] || '';
   });
-  return obj as T;
+  return obj;
 }
 
 /**
@@ -45,7 +45,7 @@ export async function loadCsv<T extends Record<string, string> = Record<string, 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim()) {
-      rows.push(parseCsvLine<T>(line, headers));
+      rows.push(parseCsvLine(line, headers) as T);
     }
   }
 

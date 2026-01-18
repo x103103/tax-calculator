@@ -72,13 +72,13 @@ export class TaxCalculator {
   async calculateTax(): Promise<TaxSummary> {
     const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
 
-    const profits = await calculateProfits(closedPositions, this.rateService);
-    const buyFees = await calculateBuyFees(
+    const profits = calculateProfits(closedPositions, this.rateService);
+    const buyFees = calculateBuyFees(
       closedPositions,
       buyTradesMap,
       this.rateService
     );
-    const sellFees = await calculateSellFees(sellTrades, this.rateService);
+    const sellFees = calculateSellFees(sellTrades, this.rateService);
 
     const { taxableBase, taxOwed } = calculateTax(
       profits.totalPln,
@@ -108,13 +108,13 @@ export class TaxCalculator {
   async generateReport(): Promise<TaxReport> {
     const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
 
-    const profits = await calculateProfits(closedPositions, this.rateService);
-    const buyFees = await calculateBuyFees(
+    const profits = calculateProfits(closedPositions, this.rateService);
+    const buyFees = calculateBuyFees(
       closedPositions,
       buyTradesMap,
       this.rateService
     );
-    const sellFees = await calculateSellFees(sellTrades, this.rateService);
+    const sellFees = calculateSellFees(sellTrades, this.rateService);
 
     const { taxableBase, taxOwed } = calculateTax(
       profits.totalPln,

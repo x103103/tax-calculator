@@ -7,10 +7,10 @@ import { convertToPlnWithDate, formatDate } from '../services/currency-converter
  * @param rateService - Rate service with getRateForPreviousDay method
  * @returns Profits with totalUsd, totalPln, and details array
  */
-export async function calculateProfits(
+export function calculateProfits(
   closedPositions: ClosedPositionRow[],
   rateService: IRateService
-): Promise<ProfitResult> {
+): ProfitResult {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -20,7 +20,7 @@ export async function calculateProfits(
     const profitUsd = parseFloat(position.FifoPnlRealized) || 0;
     const tradeDate = formatDate(position.TradeDate);
 
-    const conversion = await convertToPlnWithDate(profitUsd, tradeDate, rateService);
+    const conversion = convertToPlnWithDate(profitUsd, tradeDate, rateService);
 
     totalUsd += profitUsd;
     totalPln += conversion.amountPln;

@@ -9,11 +9,11 @@ import { convertToPlnWithDate, formatDate } from '../services/currency-converter
  * @returns Fees with totalUsd, totalPln, and details array
  * @throws Error If buy trade not found for a position (fail fast)
  */
-export async function calculateBuyFees(
+export function calculateBuyFees(
   closedPositions: ClosedPositionRow[],
   buyTradesMap: Map<string, TradeRow>,
   rateService: IRateService
-): Promise<FeeResult> {
+): FeeResult {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -29,7 +29,7 @@ export async function calculateBuyFees(
     const feeUsd = Math.abs(parseFloat(buyTrade.IBCommission) || 0);
     const buyDate = formatDate(buyTrade.TradeDate);
 
-    const conversion = await convertToPlnWithDate(feeUsd, buyDate, rateService);
+    const conversion = convertToPlnWithDate(feeUsd, buyDate, rateService);
 
     totalUsd += feeUsd;
     totalPln += conversion.amountPln;

@@ -19,10 +19,10 @@ async function main(): Promise<void> {
     console.log('\n╔════════════════════════════════════════════════════════════════╗');
     console.log('║                    FINAL TAX RESULT                            ║');
     console.log('╚════════════════════════════════════════════════════════════════╝\n');
-    console.log(`Year:           ${report.year}`);
+    console.log(`Year:           ${report.year.toString()}`);
     console.log(`Tax Owed:       ${report.taxOwed.toFixed(2)} PLN`);
     console.log(`Taxable Base:   ${report.taxableBase.toFixed(2)} PLN`);
-    console.log(`Tax Rate:       ${(report.taxRate * 100)}%\n`);
+    console.log(`Tax Rate:       ${(report.taxRate * 100).toString()}%\n`);
 
     console.log('Note: All USD amounts have been converted to PLN using the');
     console.log('      exchange rate from the day BEFORE each transaction.\n');
@@ -32,9 +32,9 @@ async function main(): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';
     console.error('\n❌ ERROR:', errorMessage);
-    if (errorStack) console.error(errorStack);
+    if (errorStack !== undefined && errorStack !== '') console.error(errorStack);
     process.exit(1);
   }
 }
 
-main();
+void main();

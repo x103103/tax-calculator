@@ -14,9 +14,9 @@ function printLoadingSummary(report: TaxReport): void {
   const sellCount = report.details.sellFeeBreakdown.length;
 
   console.log('Loading trading data...\n');
-  console.log(`✓ Loaded ${closedCount} closed positions from ${report.year}`);
-  console.log(`✓ Loaded ${buyCount} total trades (2024 + 2025)`);
-  console.log(`✓ Found ${sellCount} sell trades in ${report.year}\n`);
+  console.log(`✓ Loaded ${closedCount.toString()} closed positions from ${report.year.toString()}`);
+  console.log(`✓ Loaded ${buyCount.toString()} total trades (2024 + 2025)`);
+  console.log(`✓ Found ${sellCount.toString()} sell trades in ${report.year.toString()}\n`);
 }
 
 /**
@@ -53,13 +53,13 @@ function printTaxCalculation(report: TaxReport | TaxSummary): void {
   const taxRatePercent = Math.round(report.taxRate * 100);
 
   console.log('=== TAX CALCULATION ===\n');
-  console.log(`Formula: ((Profit) - (Buy Fees) - (Sell Fees)) × ${taxRatePercent}%\n`);
+  console.log(`Formula: ((Profit) - (Buy Fees) - (Sell Fees)) × ${taxRatePercent.toString()}%\n`);
   console.log(`Profit:          ${report.profits.toFixed(2)} PLN`);
   console.log(`Buy Fees:      - ${report.buyFees.toFixed(2)} PLN`);
   console.log(`Sell Fees:     - ${report.sellFees.toFixed(2)} PLN`);
   console.log('='.repeat(50));
   console.log(`Taxable Base:    ${report.taxableBase.toFixed(2)} PLN`);
-  console.log(`Tax Rate:        ${taxRatePercent}%`);
+  console.log(`Tax Rate:        ${taxRatePercent.toString()}%`);
   console.log('='.repeat(50));
   console.log(`TAX OWED:        ${report.taxOwed.toFixed(2)} PLN`);
   console.log(`${'='.repeat(50)}\n`);
@@ -74,9 +74,9 @@ function printSummary(report: TaxReport): void {
   const sellCount = report.details.sellFeeBreakdown.length;
 
   console.log('=== SUMMARY ===\n');
-  console.log(`Closed Positions: ${closedCount}`);
-  console.log(`Buy Transactions: ${buyCount}`);
-  console.log(`Sell Transactions: ${sellCount}\n`);
+  console.log(`Closed Positions: ${closedCount.toString()}`);
+  console.log(`Buy Transactions: ${buyCount.toString()}`);
+  console.log(`Sell Transactions: ${sellCount.toString()}\n`);
 
   console.log('USD Amounts:');
   console.log(`  Profit:     $${report.profitsUSD.toFixed(2)}`);

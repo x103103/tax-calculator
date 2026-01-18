@@ -7,10 +7,10 @@ import { convertToPlnWithDate, formatDate } from '../services/currency-converter
  * @param rateService - Rate service with getRateForPreviousDay method
  * @returns Fees with totalUsd, totalPln, and details array
  */
-export async function calculateSellFees(
+export function calculateSellFees(
   sellTrades: TradeRow[],
   rateService: IRateService
-): Promise<FeeResult> {
+): FeeResult {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -20,7 +20,7 @@ export async function calculateSellFees(
     const feeUsd = Math.abs(parseFloat(trade.IBCommission) || 0);
     const sellDate = formatDate(trade.TradeDate);
 
-    const conversion = await convertToPlnWithDate(feeUsd, sellDate, rateService);
+    const conversion = convertToPlnWithDate(feeUsd, sellDate, rateService);
 
     totalUsd += feeUsd;
     totalPln += conversion.amountPln;

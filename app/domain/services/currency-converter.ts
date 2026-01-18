@@ -22,13 +22,13 @@ export function formatDate(dateStr: string): string {
  * @param rateService - Rate service with getRateForPreviousDay method
  * @returns Conversion result with amountPln, rate, rateDate, daysBack
  */
-export async function convertToPlnWithDate(
+export function convertToPlnWithDate(
   amountUsd: number,
   date: string,
   rateService: IRateService
-): Promise<ConversionResult> {
+): ConversionResult {
   const formattedDate = formatDate(date);
-  const rateInfo = await rateService.getRateForPreviousDay(formattedDate);
+  const rateInfo = rateService.getRateForPreviousDay(formattedDate);
   const amountPln = amountUsd * rateInfo.rate;
 
   return {

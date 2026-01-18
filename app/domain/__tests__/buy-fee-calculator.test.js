@@ -9,8 +9,8 @@ describe('calculateBuyFees', () => {
     jest.clearAllMocks();
   });
 
-  it('calculates fees by matching positions to buy trades', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('calculates fees by matching positions to buy trades', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2024-12-31',
       daysBack: 1
@@ -24,27 +24,27 @@ describe('calculateBuyFees', () => {
       ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20240101' }]
     ]);
 
-    const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
+    const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
 
     expect(result.totalUsd).toBe(1.50);
     expect(result.totalPln).toBe(6.00);
     expect(result.details).toHaveLength(1);
   });
 
-  it('throws error when buy trade not found', async () => {
+  it('throws error when buy trade not found', () => {
     const positions = [
       { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN999' }
     ];
 
     const buyTradesMap = new Map(); // Empty map
 
-    await expect(
-      calculateBuyFees(positions, buyTradesMap, mockRateService)
-    ).rejects.toThrow('Buy trade not found for TransactionID TXN999');
+    expect(
+      () => calculateBuyFees(positions, buyTradesMap, mockRateService)
+    ).toThrow('Buy trade not found for TransactionID TXN999');
   });
 
-  it('applies Math.abs to commission', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('applies Math.abs to commission', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2024-12-31',
       daysBack: 1
@@ -58,13 +58,13 @@ describe('calculateBuyFees', () => {
       ['TXN001', { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20240101' }]
     ]);
 
-    const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
+    const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
 
     expect(result.totalUsd).toBe(2.50); // Positive, not negative
   });
 
-  it('returns correct detail structure', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('returns correct detail structure', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2024-12-31',
       daysBack: 1
@@ -78,7 +78,7 @@ describe('calculateBuyFees', () => {
       ['TXN002', { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20240215' }]
     ]);
 
-    const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
+    const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
 
     expect(result.details[0]).toEqual({
       symbol: 'MSFT',
@@ -90,8 +90,8 @@ describe('calculateBuyFees', () => {
     });
   });
 
-  it('aggregates multiple positions', async () => {
-    mockRateService.getRateForPreviousDay.mockResolvedValue({
+  it('aggregates multiple positions', () => {
+    mockRateService.getRateForPreviousDay.mockReturnValue({
       rate: 4.0,
       date: '2024-12-31',
       daysBack: 1
@@ -107,15 +107,15 @@ describe('calculateBuyFees', () => {
       ['TXN003', { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20240102' }]
     ]);
 
-    const result = await calculateBuyFees(positions, buyTradesMap, mockRateService);
+    const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
 
     expect(result.totalUsd).toBe(3.00);
     expect(result.totalPln).toBe(12.00);
     expect(result.details).toHaveLength(2);
   });
 
-  it('handles empty positions array', async () => {
-    const result = await calculateBuyFees([], new Map(), mockRateService);
+  it('handles empty positions array', () => {
+    const result = calculateBuyFees([], new Map(), mockRateService);
 
     expect(result.totalUsd).toBe(0);
     expect(result.totalPln).toBe(0);
