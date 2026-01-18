@@ -1,5 +1,3 @@
-const { loadCsv, parseCsvLine } = require('../csv-loader');
-
 jest.mock('fs', () => ({
   promises: {
     readFile: jest.fn(),
@@ -7,6 +5,7 @@ jest.mock('fs', () => ({
 }));
 
 const fs = require('fs').promises;
+const { loadCsv, parseCsvLine } = require('../csv-loader');
 
 describe('csv-loader', () => {
   afterEach(() => {

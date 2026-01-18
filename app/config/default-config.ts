@@ -3,12 +3,13 @@
  * Centralized config with factory for overrides
  */
 
-const path = require('path');
+import path from 'path';
+import type { TaxConfig, ConfigOverrides } from '../types';
 
 const DATA_DIR = path.join(__dirname, '../../tmp/data/spreadsheet-tabs');
 
-function createConfig(overrides = {}) {
-  const defaults = {
+export function createConfig(overrides?: ConfigOverrides): TaxConfig {
+  const defaults: TaxConfig = {
     dataDir: DATA_DIR,
     csvPaths: {
       closed2025: path.join(DATA_DIR, 'closed_2025.csv'),
@@ -23,10 +24,8 @@ function createConfig(overrides = {}) {
   return {
     ...defaults,
     ...overrides,
-    csvPaths: { ...defaults.csvPaths, ...overrides.csvPaths },
+    csvPaths: { ...defaults.csvPaths, ...overrides?.csvPaths },
   };
 }
 
-const defaultConfig = createConfig();
-
-module.exports = { createConfig, defaultConfig };
+export const defaultConfig: TaxConfig = createConfig();

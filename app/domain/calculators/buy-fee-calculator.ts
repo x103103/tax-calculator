@@ -1,19 +1,19 @@
-/**
- * Buy Fee Calculator
- * Calculates buy fees by matching closed positions to buy trades
- */
-
-const { convertToPlnWithDate, formatDate } = require('../services/currency-converter');
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
+import { ClosedPositionRow, TradeRow, FeeResult, IRateService } from '../../types/index';
 
 /**
  * Calculate buy fees from closed positions and their matching buy trades
- * @param {Array<Object>} closedPositions - Array of closed position objects
- * @param {Map<string, Object>} buyTradesMap - Map of buy trades keyed by Symbol_OpenDateTime
- * @param {Object} rateService - Rate service with getRateForPreviousDay method
- * @returns {Promise<Object>} Fees with totalUsd, totalPln, and details array
- * @throws {Error} If buy trade not found for a position (fail fast)
+ * @param closedPositions - Array of closed position objects
+ * @param buyTradesMap - Map of buy trades keyed by Symbol_OpenDateTime
+ * @param rateService - Rate service with getRateForPreviousDay method
+ * @returns Fees with totalUsd, totalPln, and details array
+ * @throws Error If buy trade not found for a position (fail fast)
  */
-async function calculateBuyFees(closedPositions, buyTradesMap, rateService) {
+export async function calculateBuyFees(
+  closedPositions: ClosedPositionRow[],
+  buyTradesMap: Map<string, TradeRow>,
+  rateService: IRateService
+): Promise<FeeResult> {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -48,5 +48,3 @@ async function calculateBuyFees(closedPositions, buyTradesMap, rateService) {
 
   return { totalUsd, totalPln, details };
 }
-
-module.exports = { calculateBuyFees };

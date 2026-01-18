@@ -1,17 +1,16 @@
-/**
- * Sell Fee Calculator
- * Calculates sell fees from sell trades
- */
-
-const { convertToPlnWithDate, formatDate } = require('../services/currency-converter');
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
+import { TradeRow, FeeResult, IRateService } from '../../types/index';
 
 /**
  * Calculate sell fees from sell trades
- * @param {Array<Object>} sellTrades - Array of sell trade objects
- * @param {Object} rateService - Rate service with getRateForPreviousDay method
- * @returns {Promise<Object>} Fees with totalUsd, totalPln, and details array
+ * @param sellTrades - Array of sell trade objects
+ * @param rateService - Rate service with getRateForPreviousDay method
+ * @returns Fees with totalUsd, totalPln, and details array
  */
-async function calculateSellFees(sellTrades, rateService) {
+export async function calculateSellFees(
+  sellTrades: TradeRow[],
+  rateService: IRateService
+): Promise<FeeResult> {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -38,5 +37,3 @@ async function calculateSellFees(sellTrades, rateService) {
 
   return { totalUsd, totalPln, details };
 }
-
-module.exports = { calculateSellFees };

@@ -1,15 +1,12 @@
-/**
- * Currency Converter Service
- * Converts USD amounts to PLN using rate service with date handling
- */
+import { ConversionResult, IRateService } from '../../types/index';
 
 /**
  * Format date from YYYYMMDD to YYYY-MM-DD
  * Handles formats like "20250122" or "20250122;123456"
- * @param {string} dateStr - Date string to format
- * @returns {string} Formatted date or original if invalid
+ * @param dateStr - Date string to format
+ * @returns Formatted date or original if invalid
  */
-function formatDate(dateStr) {
+export function formatDate(dateStr: string): string {
   if (!dateStr || dateStr.length < 8) return dateStr;
   const cleanDate = dateStr.split(';')[0];
   if (cleanDate.length === 8) {
@@ -20,12 +17,16 @@ function formatDate(dateStr) {
 
 /**
  * Convert USD amount to PLN using rate service
- * @param {number} amountUsd - Amount in USD
- * @param {string} date - Trade date (YYYYMMDD or YYYY-MM-DD)
- * @param {Object} rateService - Rate service with getRateForPreviousDay method
- * @returns {Promise<Object>} Conversion result with amountPln, rate, rateDate, daysBack
+ * @param amountUsd - Amount in USD
+ * @param date - Trade date (YYYYMMDD or YYYY-MM-DD)
+ * @param rateService - Rate service with getRateForPreviousDay method
+ * @returns Conversion result with amountPln, rate, rateDate, daysBack
  */
-async function convertToPlnWithDate(amountUsd, date, rateService) {
+export async function convertToPlnWithDate(
+  amountUsd: number,
+  date: string,
+  rateService: IRateService
+): Promise<ConversionResult> {
   const formattedDate = formatDate(date);
   const rateInfo = await rateService.getRateForPreviousDay(formattedDate);
   const amountPln = amountUsd * rateInfo.rate;
@@ -37,5 +38,3 @@ async function convertToPlnWithDate(amountUsd, date, rateService) {
     daysBack: rateInfo.daysBack
   };
 }
-
-module.exports = { convertToPlnWithDate, formatDate };

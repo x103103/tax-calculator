@@ -3,24 +3,26 @@
  * Formats and prints tax calculation report to stdout
  */
 
+import { TaxReport, TaxSummary } from '../../types';
+
 /**
  * Print loading summary section
  */
-function printLoadingSummary(report) {
+function printLoadingSummary(report: TaxReport): void {
   const closedCount = report.details.profitBreakdown.length;
   const buyCount = report.details.buyFeeBreakdown.length;
   const sellCount = report.details.sellFeeBreakdown.length;
 
   console.log('Loading trading data...\n');
-  console.log(`\u2713 Loaded ${closedCount} closed positions from ${report.year}`);
-  console.log(`\u2713 Loaded ${buyCount} total trades (2024 + 2025)`);
-  console.log(`\u2713 Found ${sellCount} sell trades in ${report.year}\n`);
+  console.log(`✓ Loaded ${closedCount} closed positions from ${report.year}`);
+  console.log(`✓ Loaded ${buyCount} total trades (2024 + 2025)`);
+  console.log(`✓ Found ${sellCount} sell trades in ${report.year}\n`);
 }
 
 /**
  * Print profits section
  */
-function printProfits(report) {
+function printProfits(report: TaxReport | TaxSummary): void {
   console.log('=== CALCULATING PROFITS ===\n');
   console.log(`Total Profit: $${report.profitsUSD.toFixed(2)} USD`);
   console.log(`Total Profit: ${report.profits.toFixed(2)} PLN\n`);
@@ -29,7 +31,7 @@ function printProfits(report) {
 /**
  * Print buy fees section
  */
-function printBuyFees(report) {
+function printBuyFees(report: TaxReport | TaxSummary): void {
   console.log('=== CALCULATING BUY FEES ===\n');
   console.log(`Total Buy Fees: $${report.buyFeesUSD.toFixed(2)} USD`);
   console.log(`Total Buy Fees: ${report.buyFees.toFixed(2)} PLN\n`);
@@ -38,7 +40,7 @@ function printBuyFees(report) {
 /**
  * Print sell fees section
  */
-function printSellFees(report) {
+function printSellFees(report: TaxReport | TaxSummary): void {
   console.log('=== CALCULATING SELL FEES ===\n');
   console.log(`Total Sell Fees: $${report.sellFeesUSD.toFixed(2)} USD`);
   console.log(`Total Sell Fees: ${report.sellFees.toFixed(2)} PLN\n`);
@@ -47,11 +49,11 @@ function printSellFees(report) {
 /**
  * Print tax calculation section
  */
-function printTaxCalculation(report) {
+function printTaxCalculation(report: TaxReport | TaxSummary): void {
   const taxRatePercent = Math.round(report.taxRate * 100);
 
   console.log('=== TAX CALCULATION ===\n');
-  console.log(`Formula: ((Profit) - (Buy Fees) - (Sell Fees)) \u00d7 ${taxRatePercent}%\n`);
+  console.log(`Formula: ((Profit) - (Buy Fees) - (Sell Fees)) × ${taxRatePercent}%\n`);
   console.log(`Profit:          ${report.profits.toFixed(2)} PLN`);
   console.log(`Buy Fees:      - ${report.buyFees.toFixed(2)} PLN`);
   console.log(`Sell Fees:     - ${report.sellFees.toFixed(2)} PLN`);
@@ -66,7 +68,7 @@ function printTaxCalculation(report) {
 /**
  * Print summary section
  */
-function printSummary(report) {
+function printSummary(report: TaxReport): void {
   const closedCount = report.details.profitBreakdown.length;
   const buyCount = report.details.buyFeeBreakdown.length;
   const sellCount = report.details.sellFeeBreakdown.length;
@@ -89,15 +91,21 @@ function printSummary(report) {
 
 /**
  * Print full tax calculation report to console
- * @param {Object} report - Tax result from calculator.generateReport()
  */
-function printReport(report) {
-  printLoadingSummary(report);
-  printProfits(report);
-  printBuyFees(report);
-  printSellFees(report);
-  printTaxCalculation(report);
-  printSummary(report);
+export function printReport(report: TaxReport | TaxSummary): void {
+  if ('details' in report) {
+    // TaxReport with details
+    printLoadingSummary(report);
+    printProfits(report);
+    printBuyFees(report);
+    printSellFees(report);
+    printTaxCalculation(report);
+    printSummary(report);
+  } else {
+    // TaxSummary without details
+    printProfits(report);
+    printBuyFees(report);
+    printSellFees(report);
+    printTaxCalculation(report);
+  }
 }
-
-module.exports = { printReport };

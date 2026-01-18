@@ -3,26 +3,34 @@
  * Coordinates all layers to calculate Polish tax on trading profits
  */
 
-const { TradeRepository } = require('../../infrastructure/repositories/trade-repository');
-const { UsdPlnRateService } = require('../../infrastructure/services/usd-pln-rate');
-const { calculateProfits } = require('../../domain/calculators/profit-calculator');
-const { calculateBuyFees } = require('../../domain/calculators/buy-fee-calculator');
-const { calculateSellFees } = require('../../domain/calculators/sell-fee-calculator');
-const { calculateTax } = require('../../domain/calculators/tax-calculator');
-const { defaultConfig } = require('../../config');
+import { TradeRepository } from '../../infrastructure/repositories/trade-repository';
+import { UsdPlnRateService } from '../../infrastructure/services/usd-pln-rate';
+import { calculateProfits } from '../../domain/calculators/profit-calculator';
+import { calculateBuyFees } from '../../domain/calculators/buy-fee-calculator';
+import { calculateSellFees } from '../../domain/calculators/sell-fee-calculator';
+import { calculateTax } from '../../domain/calculators/tax-calculator';
+import { defaultConfig } from '../../config';
+import type {
+  TaxConfig,
+  TaxSummary,
+  TaxReport,
+  TradeData,
+} from '../../types';
 
-class TaxCalculator {
-  constructor(config = defaultConfig) {
+export class TaxCalculator {
+  config: TaxConfig;
+  private _tradeRepo: TradeRepository | null = null;
+  private _rateService: UsdPlnRateService | null = null;
+  private _tradeData: TradeData | null = null;
+
+  constructor(config: TaxConfig = defaultConfig) {
     this.config = config;
-    this._tradeRepo = null;
-    this._rateService = null;
-    this._tradeData = null;
   }
 
   /**
    * Lazy-init trade repository
    */
-  get tradeRepo() {
+  get tradeRepo(): TradeRepository {
     if (!this._tradeRepo) {
       this._tradeRepo = new TradeRepository();
     }
@@ -32,7 +40,7 @@ class TaxCalculator {
   /**
    * Lazy-init rate service
    */
-  get rateService() {
+  get rateService(): UsdPlnRateService {
     if (!this._rateService) {
       this._rateService = new UsdPlnRateService(this.config.csvPaths.rates);
     }
@@ -42,7 +50,7 @@ class TaxCalculator {
   /**
    * Load all data from CSV files
    */
-  async loadData() {
+  async loadData(): Promise<TradeData> {
     if (this._tradeData) return this._tradeData;
 
     const [tradeData] = await Promise.all([
@@ -61,11 +69,15 @@ class TaxCalculator {
   /**
    * Calculate tax - returns summary result
    */
-  async calculateTax() {
+  async calculateTax(): Promise<TaxSummary> {
     const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
 
     const profits = await calculateProfits(closedPositions, this.rateService);
-    const buyFees = await calculateBuyFees(closedPositions, buyTradesMap, this.rateService);
+    const buyFees = await calculateBuyFees(
+      closedPositions,
+      buyTradesMap,
+      this.rateService
+    );
     const sellFees = await calculateSellFees(sellTrades, this.rateService);
 
     const { taxableBase, taxOwed } = calculateTax(
@@ -93,11 +105,15 @@ class TaxCalculator {
   /**
    * Generate full report with details
    */
-  async generateReport() {
+  async generateReport(): Promise<TaxReport> {
     const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
 
     const profits = await calculateProfits(closedPositions, this.rateService);
-    const buyFees = await calculateBuyFees(closedPositions, buyTradesMap, this.rateService);
+    const buyFees = await calculateBuyFees(
+      closedPositions,
+      buyTradesMap,
+      this.rateService
+    );
     const sellFees = await calculateSellFees(sellTrades, this.rateService);
 
     const { taxableBase, taxOwed } = calculateTax(
@@ -127,5 +143,3 @@ class TaxCalculator {
     };
   }
 }
-
-module.exports = { TaxCalculator };

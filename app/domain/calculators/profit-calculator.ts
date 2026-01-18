@@ -1,17 +1,16 @@
-/**
- * Profit Calculator
- * Calculates realized profits from closed positions
- */
-
-const { convertToPlnWithDate, formatDate } = require('../services/currency-converter');
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
+import { ClosedPositionRow, ProfitResult, IRateService } from '../../types/index';
 
 /**
  * Calculate realized profits from closed positions
- * @param {Array<Object>} closedPositions - Array of closed position objects
- * @param {Object} rateService - Rate service with getRateForPreviousDay method
- * @returns {Promise<Object>} Profits with totalUsd, totalPln, and details array
+ * @param closedPositions - Array of closed position objects
+ * @param rateService - Rate service with getRateForPreviousDay method
+ * @returns Profits with totalUsd, totalPln, and details array
  */
-async function calculateProfits(closedPositions, rateService) {
+export async function calculateProfits(
+  closedPositions: ClosedPositionRow[],
+  rateService: IRateService
+): Promise<ProfitResult> {
   let totalUsd = 0;
   let totalPln = 0;
   const details = [];
@@ -38,5 +37,3 @@ async function calculateProfits(closedPositions, rateService) {
 
   return { totalUsd, totalPln, details };
 }
-
-module.exports = { calculateProfits };

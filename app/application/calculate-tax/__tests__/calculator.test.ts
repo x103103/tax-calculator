@@ -1,6 +1,6 @@
-const path = require('path');
-const { TaxCalculator } = require('../calculator');
-const { createConfig } = require('../../../config');
+import path from 'path';
+import { TaxCalculator } from '../calculator';
+import { createConfig } from '../../../config';
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 const testConfig = createConfig({
@@ -21,9 +21,9 @@ describe('TaxCalculator', () => {
     });
 
     it('accepts custom config', () => {
-      const custom = createConfig({ taxRate: 0.20, year: 2024 });
+      const custom = createConfig({ taxRate: 0.2, year: 2024 });
       const calc = new TaxCalculator(custom);
-      expect(calc.config.taxRate).toBe(0.20);
+      expect(calc.config.taxRate).toBe(0.2);
       expect(calc.config.year).toBe(2024);
     });
   });
@@ -51,11 +51,11 @@ describe('TaxCalculator', () => {
       const result = await calc.calculateTax();
 
       // 2 TRNT closed positions: 100.50 + 250.00
-      expect(result.profitsUSD).toBe(350.50);
+      expect(result.profitsUSD).toBe(350.5);
       // Buy fees: 1.50 (AAPL 2024) + 2.00 (GOOG 2025)
-      expect(result.buyFeesUSD).toBe(3.50);
+      expect(result.buyFeesUSD).toBe(3.5);
       // Sell fees: 1.25 (AAPL) + 1.75 (GOOG)
-      expect(result.sellFeesUSD).toBe(3.00);
+      expect(result.sellFeesUSD).toBe(3.0);
     });
 
     it('applies 19% tax rate', async () => {
@@ -86,7 +86,7 @@ describe('TaxCalculator', () => {
       expect(result.details.profitBreakdown).toHaveLength(2);
       expect(result.details.profitBreakdown[0]).toMatchObject({
         symbol: 'AAPL',
-        profitUsd: 100.50,
+        profitUsd: 100.5,
       });
     });
 

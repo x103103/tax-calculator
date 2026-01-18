@@ -1,7 +1,7 @@
+jest.mock('../../data/csv-loader');
+
 const { TradeRepository } = require('../trade-repository');
 const { loadCsv } = require('../../data/csv-loader');
-
-jest.mock('../../data/csv-loader');
 
 describe('TradeRepository', () => {
   let repo;

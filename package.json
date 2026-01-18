@@ -4,9 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "dev": "ts-node app/test-poland-tax.ts",
+    "start": "node dist/test-poland-tax.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "repository": {
     "type": "git",
@@ -19,7 +24,12 @@
     "axios": "^1.13.2"
   },
   "devDependencies": {
-    "jest": "^30.2.0"
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.10.9",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
 }

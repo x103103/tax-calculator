@@ -1,24 +1,28 @@
-const { loadCsv } = require('../data/csv-loader');
+import { loadCsv } from '../data/csv-loader';
+import type {
+  ITradeRepository,
+  TradeRepositoryConfig,
+  TradeData,
+  ClosedPositionRow,
+  TradeRow,
+} from '../../types';
 
 /**
  * Repository for loading and indexing trade data from CSV files
  */
-class TradeRepository {
+export class TradeRepository implements ITradeRepository {
   /**
    * Load trade data from CSV files
-   * @param {Object} config - File paths configuration
-   * @param {string} config.closedPositionsPath - Path to closed positions CSV
-   * @param {string} config.trades2024Path - Path to 2024 trades CSV
-   * @param {string} config.trades2025Path - Path to 2025 trades CSV
-   * @returns {Promise<Object>} Indexed trade data
+   * @param config - File paths configuration
+   * @returns Indexed trade data
    */
-  async load(config) {
+  async load(config: TradeRepositoryConfig): Promise<TradeData> {
     const { closedPositionsPath, trades2024Path, trades2025Path } = config;
 
     const [closedRaw, trades2024Raw, trades2025Raw] = await Promise.all([
-      loadCsv(closedPositionsPath),
-      loadCsv(trades2024Path),
-      loadCsv(trades2025Path),
+      loadCsv<ClosedPositionRow>(closedPositionsPath),
+      loadCsv<TradeRow>(trades2024Path),
+      loadCsv<TradeRow>(trades2025Path),
     ]);
 
     const closedPositions = this.#filterTrnt(closedRaw);
@@ -37,23 +41,21 @@ class TradeRepository {
 
   /**
    * Filter records where TRNT === 'TRNT'
-   * @param {Object[]} records
-   * @returns {Object[]}
    */
-  #filterTrnt(records) {
+  #filterTrnt<T extends { TRNT: string }>(records: T[]): T[] {
     return records.filter((r) => r.TRNT === 'TRNT');
   }
 
   /**
    * Build map of buy trades keyed by Symbol_DateTime
-   * @param {Object[]} trades2024
-   * @param {Object[]} trades2025
-   * @returns {Map<string, Object>}
    */
-  #buildBuyTradesMap(trades2024, trades2025) {
-    const map = new Map();
+  #buildBuyTradesMap(
+    trades2024: TradeRow[],
+    trades2025: TradeRow[]
+  ): Map<string, TradeRow> {
+    const map = new Map<string, TradeRow>();
 
-    const addToMap = (trade) => {
+    const addToMap = (trade: TradeRow): void => {
       const key = `${trade.Symbol}_${trade.DateTime}`;
       map.set(key, trade);
     };
@@ -66,12 +68,8 @@ class TradeRepository {
 
   /**
    * Collect SELL trades from 2025
-   * @param {Object[]} trades2025
-   * @returns {Object[]}
    */
-  #collectSellTrades(trades2025) {
+  #collectSellTrades(trades2025: TradeRow[]): TradeRow[] {
     return trades2025.filter((t) => t['Buy/Sell'] === 'SELL');
   }
 }
-
-module.exports = { TradeRepository };
