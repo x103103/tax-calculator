@@ -1,4 +1,4 @@
-const { fetchGoogleSheetAsCSV } = require('./app/services/fetch-spreadsheet');
+const { fetchGoogleSheetAsCSV } = require('./fetch-service');
 const fs = require('fs').promises;
 const path = require('path');
 
