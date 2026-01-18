@@ -1,4 +1,4 @@
-const { calculateTax } = require('../calculators/tax-calculator');
+import { calculateTax } from '../calculators/tax-calculator';
 
 describe('calculateTax', () => {
   it('applies formula: (profits - buyFees - sellFees) * 19%', () => {

@@ -1,9 +1,13 @@
-const { calculateSellFees } = require('../calculators/sell-fee-calculator');
+import { calculateSellFees } from '../calculators/sell-fee-calculator';
+import { TradeRow, IRateService } from '../../types/index';
 
 describe('calculateSellFees', () => {
   const mockRateService = {
-    getRateForPreviousDay: jest.fn()
-  };
+    getRateForPreviousDay: jest.fn(),
+    load: jest.fn(),
+    getRate: jest.fn(),
+    reload: jest.fn()
+  } as unknown as jest.Mocked<IRateService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -18,7 +22,7 @@ describe('calculateSellFees', () => {
 
     const sellTrades = [
       { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20250122' }
-    ];
+    ] as TradeRow[];
 
     const result = calculateSellFees(sellTrades, mockRateService);
 
@@ -36,7 +40,7 @@ describe('calculateSellFees', () => {
 
     const sellTrades = [
       { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20250122' }
-    ];
+    ] as TradeRow[];
 
     const result = calculateSellFees(sellTrades, mockRateService);
 
@@ -52,7 +56,7 @@ describe('calculateSellFees', () => {
 
     const sellTrades = [
       { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20250122' }
-    ];
+    ] as TradeRow[];
 
     const result = calculateSellFees(sellTrades, mockRateService);
 
@@ -74,7 +78,7 @@ describe('calculateSellFees', () => {
     const sellTrades = [
       { Symbol: 'AAPL', IBCommission: '-1.00', TradeDate: '20250122' },
       { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20250123' }
-    ];
+    ] as TradeRow[];
 
     const result = calculateSellFees(sellTrades, mockRateService);
 
@@ -101,7 +105,7 @@ describe('calculateSellFees', () => {
     const sellTrades = [
       { Symbol: 'AAPL', IBCommission: '', TradeDate: '20250122' },
       { Symbol: 'GOOGL', TradeDate: '20250122' }
-    ];
+    ] as TradeRow[];
 
     const result = calculateSellFees(sellTrades, mockRateService);
 

@@ -1,14 +1,15 @@
+import { promises as fs } from 'fs';
+import { loadCsv, parseCsvLine } from '../csv-loader';
+
 jest.mock('fs', () => ({
   promises: {
     readFile: jest.fn(),
   },
 }));
 
-const fs = require('fs').promises;
-
-const { loadCsv, parseCsvLine } = require('../csv-loader');
-
 describe('csv-loader', () => {
+  const mockedFsReadFile = fs.readFile as jest.MockedFunction<typeof fs.readFile>;
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -52,11 +53,11 @@ describe('csv-loader', () => {
 GOOG,20250101,100
 AAPL,20250102,50`;
 
-      fs.readFile.mockResolvedValue(csvContent);
+      mockedFsReadFile.mockResolvedValue(csvContent);
 
       const result = await loadCsv('/path/to/file.csv');
 
-      expect(fs.readFile).toHaveBeenCalledWith('/path/to/file.csv', 'utf-8');
+      expect(mockedFsReadFile).toHaveBeenCalledWith('/path/to/file.csv', 'utf-8');
       expect(result).toEqual([
         { Symbol: 'GOOG', DateTime: '20250101', Quantity: '100' },
         { Symbol: 'AAPL', DateTime: '20250102', Quantity: '50' },
@@ -64,7 +65,7 @@ AAPL,20250102,50`;
     });
 
     it('returns empty array for empty file', async () => {
-      fs.readFile.mockResolvedValue('');
+      mockedFsReadFile.mockResolvedValue('');
 
       const result = await loadCsv('/path/to/empty.csv');
 
@@ -72,7 +73,7 @@ AAPL,20250102,50`;
     });
 
     it('returns empty array for whitespace-only file', async () => {
-      fs.readFile.mockResolvedValue('   \n\n  ');
+      mockedFsReadFile.mockResolvedValue('   \n\n  ');
 
       const result = await loadCsv('/path/to/whitespace.csv');
 
@@ -80,7 +81,7 @@ AAPL,20250102,50`;
     });
 
     it('returns empty array for header-only file', async () => {
-      fs.readFile.mockResolvedValue('Symbol,DateTime,Quantity');
+      mockedFsReadFile.mockResolvedValue('Symbol,DateTime,Quantity');
 
       const result = await loadCsv('/path/to/header-only.csv');
 
@@ -94,7 +95,7 @@ GOOG,20250101
 AAPL,20250102
 `;
 
-      fs.readFile.mockResolvedValue(csvContent);
+      mockedFsReadFile.mockResolvedValue(csvContent);
 
       const result = await loadCsv('/path/to/file.csv');
 
@@ -106,7 +107,7 @@ AAPL,20250102
 
     it('throws on file read error', async () => {
       const error = new Error('ENOENT: file not found');
-      fs.readFile.mockRejectedValue(error);
+      mockedFsReadFile.mockRejectedValue(error);
 
       await expect(loadCsv('/invalid/path.csv')).rejects.toThrow('ENOENT');
     });
@@ -116,7 +117,7 @@ AAPL,20250102
 val1
 val2,val3`;
 
-      fs.readFile.mockResolvedValue(csvContent);
+      mockedFsReadFile.mockResolvedValue(csvContent);
 
       const result = await loadCsv('/path/to/malformed.csv');
 

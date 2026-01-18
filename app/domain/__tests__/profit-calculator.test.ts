@@ -1,9 +1,13 @@
-const { calculateProfits } = require('../calculators/profit-calculator');
+import { calculateProfits } from '../calculators/profit-calculator';
+import { ClosedPositionRow, IRateService } from '../../types/index';
 
 describe('calculateProfits', () => {
   const mockRateService = {
-    getRateForPreviousDay: jest.fn()
-  };
+    getRateForPreviousDay: jest.fn(),
+    load: jest.fn(),
+    getRate: jest.fn(),
+    reload: jest.fn()
+  } as unknown as jest.Mocked<IRateService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -19,7 +23,7 @@ describe('calculateProfits', () => {
     const positions = [
       { Symbol: 'AAPL', FifoPnlRealized: '100.50', TradeDate: '20250122' },
       { Symbol: 'GOOGL', FifoPnlRealized: '200.00', TradeDate: '20250123' }
-    ];
+    ] as ClosedPositionRow[];
 
     const result = calculateProfits(positions, mockRateService);
 
@@ -37,7 +41,7 @@ describe('calculateProfits', () => {
 
     const positions = [
       { Symbol: 'MSFT', FifoPnlRealized: '50.00', TradeDate: '20250122' }
-    ];
+    ] as ClosedPositionRow[];
 
     const result = calculateProfits(positions, mockRateService);
 
@@ -69,7 +73,7 @@ describe('calculateProfits', () => {
     const positions = [
       { Symbol: 'AAPL', FifoPnlRealized: '', TradeDate: '20250122' },
       { Symbol: 'GOOGL', TradeDate: '20250122' }
-    ];
+    ] as ClosedPositionRow[];
 
     const result = calculateProfits(positions, mockRateService);
 
@@ -85,7 +89,7 @@ describe('calculateProfits', () => {
     const positions = [
       { Symbol: 'AAPL', FifoPnlRealized: '100', TradeDate: '20250122' },
       { Symbol: 'GOOGL', FifoPnlRealized: '100', TradeDate: '20250123' }
-    ];
+    ] as ClosedPositionRow[];
 
     const result = calculateProfits(positions, mockRateService);
 

@@ -1,9 +1,13 @@
-const { calculateBuyFees } = require('../calculators/buy-fee-calculator');
+import { ClosedPositionRow, TradeRow, IRateService } from '../../types/index';
+import { calculateBuyFees } from '../calculators/buy-fee-calculator';
 
 describe('calculateBuyFees', () => {
   const mockRateService = {
-    getRateForPreviousDay: jest.fn()
-  };
+    getRateForPreviousDay: jest.fn(),
+    load: jest.fn(),
+    getRate: jest.fn(),
+    reload: jest.fn()
+  } as unknown as jest.Mocked<IRateService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -18,10 +22,10 @@ describe('calculateBuyFees', () => {
 
     const positions = [
       { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' }
-    ];
+    ] as ClosedPositionRow[];
 
-    const buyTradesMap = new Map([
-      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20240101' }]
+    const buyTradesMap = new Map<string, TradeRow>([
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.50', TradeDate: '20240101' } as TradeRow]
     ]);
 
     const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -34,9 +38,9 @@ describe('calculateBuyFees', () => {
   it('throws error when buy trade not found', () => {
     const positions = [
       { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN999' }
-    ];
+    ] as ClosedPositionRow[];
 
-    const buyTradesMap = new Map(); // Empty map
+    const buyTradesMap = new Map<string, TradeRow>(); // Empty map
 
     expect(
       () => calculateBuyFees(positions, buyTradesMap, mockRateService)
@@ -52,10 +56,10 @@ describe('calculateBuyFees', () => {
 
     const positions = [
       { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' }
-    ];
+    ] as ClosedPositionRow[];
 
-    const buyTradesMap = new Map([
-      ['TXN001', { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20240101' }]
+    const buyTradesMap = new Map<string, TradeRow>([
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-2.50', TradeDate: '20240101' } as TradeRow]
     ]);
 
     const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -72,10 +76,10 @@ describe('calculateBuyFees', () => {
 
     const positions = [
       { Symbol: 'MSFT', OpenDateTime: '20240215;093000', TransactionID: 'TXN002' }
-    ];
+    ] as ClosedPositionRow[];
 
-    const buyTradesMap = new Map([
-      ['TXN002', { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20240215' }]
+    const buyTradesMap = new Map<string, TradeRow>([
+      ['TXN002', { Symbol: 'MSFT', IBCommission: '-1.00', TradeDate: '20240215' } as TradeRow]
     ]);
 
     const result = calculateBuyFees(positions, buyTradesMap, mockRateService);
@@ -100,11 +104,11 @@ describe('calculateBuyFees', () => {
     const positions = [
       { Symbol: 'AAPL', OpenDateTime: '20240101;100000', TransactionID: 'TXN001' },
       { Symbol: 'GOOGL', OpenDateTime: '20240102;110000', TransactionID: 'TXN003' }
-    ];
+    ] as ClosedPositionRow[];
 
-    const buyTradesMap = new Map([
-      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.00', TradeDate: '20240101' }],
-      ['TXN003', { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20240102' }]
+    const buyTradesMap = new Map<string, TradeRow>([
+      ['TXN001', { Symbol: 'AAPL', IBCommission: '-1.00', TradeDate: '20240101' } as TradeRow],
+      ['TXN003', { Symbol: 'GOOGL', IBCommission: '-2.00', TradeDate: '20240102' } as TradeRow]
     ]);
 
     const result = calculateBuyFees(positions, buyTradesMap, mockRateService);

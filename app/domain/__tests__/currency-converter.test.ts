@@ -1,4 +1,5 @@
-const { convertToPlnWithDate, formatDate } = require('../services/currency-converter');
+import { convertToPlnWithDate, formatDate } from '../services/currency-converter';
+import { IRateService } from '../../types/index';
 
 describe('formatDate', () => {
   it('converts YYYYMMDD to YYYY-MM-DD', () => {
@@ -16,15 +17,18 @@ describe('formatDate', () => {
   it('returns short/invalid input unchanged', () => {
     expect(formatDate('2025')).toBe('2025');
     expect(formatDate('')).toBe('');
-    expect(formatDate(null)).toBeNull();
-    expect(formatDate(undefined)).toBeUndefined();
+    expect(formatDate(null as any)).toBeNull();
+    expect(formatDate(undefined as any)).toBeUndefined();
   });
 });
 
 describe('convertToPlnWithDate', () => {
   const mockRateService = {
-    getRateForPreviousDay: jest.fn()
-  };
+    getRateForPreviousDay: jest.fn(),
+    load: jest.fn(),
+    getRate: jest.fn(),
+    reload: jest.fn()
+  } as unknown as jest.Mocked<IRateService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
