@@ -26,7 +26,12 @@ export function calculateBuyFees(
       throw new Error(`Buy trade not found for TransactionID ${position.TransactionID}`);
     }
 
-    const feeUsd = Math.abs(parseFloat(buyTrade.IBCommission) || 0);
+    const fullFeeUsd = Math.abs(parseFloat(buyTrade.IBCommission) || 0);
+    const buyQuantity = Math.abs(parseFloat(buyTrade.Quantity) || 1);
+    const closedQuantity = Math.abs(parseFloat(position.Quantity) || 0);
+
+    const feeUsd = (fullFeeUsd * closedQuantity) / buyQuantity;
+
     const buyDate = formatDate(buyTrade.TradeDate);
 
     const conversion = convertToPlnWithDate(feeUsd, buyDate, rateService);
