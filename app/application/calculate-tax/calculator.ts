@@ -55,9 +55,9 @@ export class TaxCalculator {
 
     const [tradeData] = await Promise.all([
       this.tradeRepo.load({
-        closedPositionsPath: this.config.csvPaths.closed2025,
-        trades2024Path: this.config.csvPaths.trades2024,
-        trades2025Path: this.config.csvPaths.trades2025,
+        closedPositionsPath: this.config.csvPaths.closedPositions,
+        tradesPaths: this.config.csvPaths.trades,
+        year: this.config.year,
       }),
       this.rateService.load(),
     ]);

@@ -76,9 +76,8 @@ export interface FeeResult {
  * Config Types
  */
 export interface CsvPaths {
-  closed2025: string;
-  trades2024: string;
-  trades2025: string;
+  closedPositions: string;
+  trades: string[];
   rates: string;
 }
 
@@ -132,8 +131,7 @@ export interface TradeData {
 
 export interface TradeRepositoryConfig {
   closedPositionsPath: string;
-  trades2024Path: string;
-  trades2025Path: string;
+  tradesPaths: string[];
 }
 
 /**
@@ -147,5 +145,5 @@ export interface IRateService {
 }
 
 export interface ITradeRepository {
-  load(config: TradeRepositoryConfig): Promise<TradeData>;
+  load(config: TradeRepositoryConfig & { year: number }): Promise<TradeData>;
 }

@@ -6,10 +6,10 @@ jest.mock('../../data/csv-loader');
 
 describe('TradeRepository', () => {
   let repo: TradeRepository;
-  const config: TradeRepositoryConfig = {
+  const config: TradeRepositoryConfig & { year: number } = {
     closedPositionsPath: '/data/closed_2025.csv',
-    trades2024Path: '/data/trades_2024.csv',
-    trades2025Path: '/data/trades_2025.csv',
+    tradesPaths: ['/data/trades_2024.csv', '/data/trades_2025.csv'],
+    year: 2025,
   };
 
   const mockedLoadCsv = loadCsv as jest.MockedFunction<typeof loadCsv>;
@@ -20,15 +20,15 @@ describe('TradeRepository', () => {
   });
 
   describe('load', () => {
-    it('loads all 3 CSV files', async () => {
+    it('loads all CSV files', async () => {
       mockedLoadCsv.mockResolvedValue([]);
 
       await repo.load(config);
 
       expect(mockedLoadCsv).toHaveBeenCalledTimes(3);
       expect(mockedLoadCsv).toHaveBeenCalledWith(config.closedPositionsPath);
-      expect(mockedLoadCsv).toHaveBeenCalledWith(config.trades2024Path);
-      expect(mockedLoadCsv).toHaveBeenCalledWith(config.trades2025Path);
+      expect(mockedLoadCsv).toHaveBeenCalledWith(config.tradesPaths[0]);
+      expect(mockedLoadCsv).toHaveBeenCalledWith(config.tradesPaths[1]);
     });
 
     it('filters by TRNT === "TRNT"', async () => {
@@ -51,7 +51,7 @@ describe('TradeRepository', () => {
       expect(result.closedPositions.map((p) => p.Symbol)).toEqual(['GOOG', 'MSFT']);
     });
 
-    it('builds buyTradesMap with TransactionID key', async () => {
+    it('builds buyTradesMap with TransactionID key from all trade files', async () => {
       const closedData: ClosedPositionRow[] = [];
       const trades2024 = [
         { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
@@ -74,12 +74,12 @@ describe('TradeRepository', () => {
       expect(result.buyTradesMap.get('TXN003')).toEqual(trades2025[0]);
     });
 
-    it('2025 trades overwrite 2024 in buyTradesMap for same key', async () => {
+    it('later trades overwrite earlier trades in buyTradesMap for same key', async () => {
       const trades2024 = [
         { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2024' },
       ] as any[];
       const trades2025 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2025' },
+        { Symbol: 'GOOG', DateTime: '20250101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2025' },
       ] as any[];
 
       mockedLoadCsv
@@ -93,14 +93,14 @@ describe('TradeRepository', () => {
       expect((result.buyTradesMap.get('TXN001') as unknown as { source: string }).source).toBe('2025');
     });
 
-    it('collects SELL trades from 2025 only', async () => {
+    it('collects SELL trades from the specified year only', async () => {
       const trades2024 = [
-        { Symbol: 'OLD', DateTime: '20240101', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
+        { Symbol: 'OLD', TradeDate: '01/01/2024', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
       ] as TradeRow[];
       const trades2025 = [
-        { Symbol: 'GOOG', DateTime: '20250115', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
-        { Symbol: 'AAPL', DateTime: '20250116', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
-        { Symbol: 'MSFT', DateTime: '20250117', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
+        { Symbol: 'GOOG', TradeDate: '01/15/2025', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
+        { Symbol: 'AAPL', TradeDate: '01/16/2025', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'MSFT', TradeDate: '01/17/2025', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
       ] as TradeRow[];
 
       mockedLoadCsv
@@ -108,7 +108,7 @@ describe('TradeRepository', () => {
         .mockResolvedValueOnce(trades2024)
         .mockResolvedValueOnce(trades2025);
 
-      const result = await repo.load(config);
+      const result = await repo.load({ ...config, year: 2025 });
 
       expect(result.sellTrades).toHaveLength(2);
       expect(result.sellTrades.map((t) => t.Symbol)).toEqual(['GOOG', 'MSFT']);
@@ -135,3 +135,4 @@ describe('TradeRepository', () => {
     });
   });
 });
+

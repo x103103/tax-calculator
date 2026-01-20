@@ -16,21 +16,19 @@ export class TradeRepository implements ITradeRepository {
    * @param config - File paths configuration
    * @returns Indexed trade data
    */
-  async load(config: TradeRepositoryConfig): Promise<TradeData> {
-    const { closedPositionsPath, trades2024Path, trades2025Path } = config;
+  async load(config: TradeRepositoryConfig & { year: number }): Promise<TradeData> {
+    const { closedPositionsPath, tradesPaths, year } = config;
 
-    const [closedRaw, trades2024Raw, trades2025Raw] = await Promise.all([
+    const [closedRaw, ...tradesRaw] = await Promise.all([
       loadCsv<ClosedPositionRow>(closedPositionsPath),
-      loadCsv<TradeRow>(trades2024Path),
-      loadCsv<TradeRow>(trades2025Path),
+      ...tradesPaths.map((path) => loadCsv<TradeRow>(path)),
     ]);
 
     const closedPositions = this.#filterTrnt(closedRaw);
-    const trades2024 = this.#filterTrnt(trades2024Raw);
-    const trades2025 = this.#filterTrnt(trades2025Raw);
+    const allTrades = this.#filterTrnt(tradesRaw.flat());
 
-    const buyTradesMap = this.#buildBuyTradesMap(trades2024, trades2025);
-    const sellTrades = this.#collectSellTrades(trades2025);
+    const buyTradesMap = this.#buildBuyTradesMap(allTrades);
+    const sellTrades = this.#collectSellTrades(allTrades, year);
 
     return {
       closedPositions,
@@ -49,10 +47,7 @@ export class TradeRepository implements ITradeRepository {
   /**
    * Build map of buy trades keyed by TransactionID
    */
-  #buildBuyTradesMap(
-    trades2024: TradeRow[],
-    trades2025: TradeRow[]
-  ): Map<string, TradeRow> {
+  #buildBuyTradesMap(allTrades: TradeRow[]): Map<string, TradeRow> {
     const map = new Map<string, TradeRow>();
 
     const addToMap = (trade: TradeRow): void => {
@@ -60,16 +55,18 @@ export class TradeRepository implements ITradeRepository {
       map.set(key, trade);
     };
 
-    trades2024.forEach(addToMap);
-    trades2025.forEach(addToMap);
+    allTrades.forEach(addToMap);
 
     return map;
   }
 
   /**
-   * Collect SELL trades from 2025
+   * Collect SELL trades from the specified year
    */
-  #collectSellTrades(trades2025: TradeRow[]): TradeRow[] {
-    return trades2025.filter((t) => t['Buy/Sell'] === 'SELL');
+  #collectSellTrades(allTrades: TradeRow[], year: number): TradeRow[] {
+    return allTrades.filter((t) => {
+      const tradeYear = new Date(t.TradeDate).getFullYear();
+      return t['Buy/Sell'] === 'SELL' && tradeYear === year;
+    });
   }
 }

@@ -6,9 +6,11 @@ import { TaxCalculator } from '../calculator';
 const fixturesDir = path.join(__dirname, 'fixtures');
 const testConfig = createConfig({
   csvPaths: {
-    closed2025: path.join(fixturesDir, 'closed_2025.csv'),
-    trades2024: path.join(fixturesDir, 'trades_2024.csv'),
-    trades2025: path.join(fixturesDir, 'trades_2025.csv'),
+    closedPositions: path.join(fixturesDir, 'closed_2025.csv'),
+    trades: [
+      path.join(fixturesDir, 'trades_2024.csv'),
+      path.join(fixturesDir, 'trades_2025.csv'),
+    ],
     rates: path.join(fixturesDir, 'rates.csv'),
   },
 });
@@ -112,9 +114,8 @@ describe('TaxCalculator', () => {
     it('throws on missing CSV file', async () => {
       const badConfig = createConfig({
         csvPaths: {
-          closed2025: '/nonexistent/closed.csv',
-          trades2024: '/nonexistent/2024.csv',
-          trades2025: '/nonexistent/2025.csv',
+          closedPositions: '/nonexistent/closed.csv',
+          trades: ['/nonexistent/2024.csv', '/nonexistent/2025.csv'],
           rates: '/nonexistent/rates.csv',
         },
       });
@@ -123,3 +124,4 @@ describe('TaxCalculator', () => {
     });
   });
 });
+
