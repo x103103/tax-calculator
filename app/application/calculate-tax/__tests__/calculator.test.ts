@@ -12,6 +12,7 @@ const testConfig = createConfig({
       path.join(fixturesDir, 'trades_2025.csv'),
     ],
     rates: path.join(fixturesDir, 'rates.csv'),
+    cashTransactions: undefined,
   },
 });
 
@@ -47,6 +48,8 @@ describe('TaxCalculator', () => {
       expect(result).toHaveProperty('profitsUSD');
       expect(result).toHaveProperty('buyFeesUSD');
       expect(result).toHaveProperty('sellFeesUSD');
+      expect(result).toHaveProperty('totalTaxOwed');
+      expect(result.dividendTax).toBeUndefined();
     });
 
     it('calculates correct USD totals', async () => {

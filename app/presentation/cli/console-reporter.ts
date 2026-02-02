@@ -3,7 +3,7 @@
  * Formats and prints tax calculation report to stdout
  */
 
-import { TaxReport, TaxSummary } from '../../types';
+import { TaxReport, TaxSummary, DividendTaxResult } from '../../types';
 
 /**
  * Print loading summary section
@@ -44,6 +44,22 @@ function printSellFees(report: TaxReport | TaxSummary): void {
   console.log('=== CALCULATING SELL FEES ===\n');
   console.log(`Total Sell Fees: $${report.sellFeesUSD.toFixed(2)} USD`);
   console.log(`Total Sell Fees: ${report.sellFees.toFixed(2)} PLN\n`);
+}
+
+/**
+ * Print dividend tax summary section
+ */
+function printDividendSummary(dividendTax: DividendTaxResult): void {
+  console.log('=== DIVIDEND TAX ===\n');
+  console.log(`Dividends:      $${dividendTax.dividends.totalUsd.toFixed(2)} = ${dividendTax.dividends.totalPln.toFixed(2)} PLN`);
+  console.log(`Withholding:    $${dividendTax.withholdingTax.totalUsd.toFixed(2)} = ${dividendTax.withholdingTax.totalPln.toFixed(2)} PLN`);
+  console.log(`Interest:       $${dividendTax.brokerInterest.totalUsd.toFixed(2)} = ${dividendTax.brokerInterest.totalPln.toFixed(2)} PLN`);
+  console.log('');
+  console.log(`Withholding Credit:   ${dividendTax.withholdingCreditPln.toFixed(2)} PLN`);
+  console.log(`Dividend Tax (19%): - ${dividendTax.dividendTaxPln.toFixed(2)} PLN`);
+  console.log(`Interest Tax (19%): - ${dividendTax.interestTaxPln.toFixed(2)} PLN`);
+  console.log('─'.repeat(50));
+  console.log(`Net Dividend Tax:     ${dividendTax.taxOwedPln.toFixed(2)} PLN\n`);
 }
 
 /**
@@ -100,6 +116,9 @@ export function printReport(report: TaxReport | TaxSummary): void {
     printBuyFees(report);
     printSellFees(report);
     printTaxCalculation(report);
+    if (report.dividendTax) {
+      printDividendSummary(report.dividendTax);
+    }
     printSummary(report);
   } else {
     // TaxSummary without details
@@ -107,5 +126,8 @@ export function printReport(report: TaxReport | TaxSummary): void {
     printBuyFees(report);
     printSellFees(report);
     printTaxCalculation(report);
+    if (report.dividendTax) {
+      printDividendSummary(report.dividendTax);
+    }
   }
 }

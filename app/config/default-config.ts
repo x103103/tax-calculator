@@ -16,6 +16,7 @@ export function createConfig(overrides?: ConfigOverrides): TaxConfig {
       closedPositions: path.join(DATA_DIR, 'closed_2025.csv'),
       trades: [path.join(DATA_DIR, 'trades_2024.csv'), path.join(DATA_DIR, 'trades_2025.csv')],
       rates: path.join(DATA_DIR, 'rates.csv'),
+      cashTransactions: path.join(DATA_DIR, 'all_cash_transactions.csv'),
     },
     taxRate: 0.19,
     year: 2025,

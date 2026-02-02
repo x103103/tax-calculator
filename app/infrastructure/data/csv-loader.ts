@@ -1,6 +1,40 @@
 import { promises as fs } from 'fs';
 
 /**
+ * Strip surrounding quotes from a string
+ */
+function stripQuotes(value: string): string {
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
+/**
+ * Parse CSV line handling quoted fields with commas
+ */
+function parseQuotedCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      current += char;
+    } else if (char === ',' && !inQuotes) {
+      result.push(stripQuotes(current));
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(stripQuotes(current));
+  return result;
+}
+
+/**
  * Parse single CSV line into object using headers
  * @param line - CSV line to parse
  * @param headers - Column headers
@@ -10,7 +44,8 @@ function parseCsvLine(
   line: string,
   headers: string[]
 ): Record<string, string> {
-  const values = line.split(',');
+  const hasQuotes = line.includes('"');
+  const values = hasQuotes ? parseQuotedCsvLine(line) : line.split(',');
   const obj: Record<string, string> = {};
   headers.forEach((header, index) => {
     obj[header] = values[index] || '';
@@ -39,7 +74,8 @@ export async function loadCsv<T extends Record<string, string> = Record<string, 
     return []; // Header only or empty
   }
 
-  const headers = lines[0].split(',');
+  const hasQuotes = lines[0].includes('"');
+  const headers = hasQuotes ? parseQuotedCsvLine(lines[0]) : lines[0].split(',');
   const rows: T[] = [];
 
   for (let i = 1; i < lines.length; i++) {

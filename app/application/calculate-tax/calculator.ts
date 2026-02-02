@@ -5,12 +5,16 @@
 
 import { defaultConfig } from '../../config';
 import { calculateBuyFees } from '../../domain/calculators/buy-fee-calculator';
+import { calculateDividendTax } from '../../domain/calculators/dividend-tax-calculator';
 import { calculateProfits } from '../../domain/calculators/profit-calculator';
 import { calculateSellFees } from '../../domain/calculators/sell-fee-calculator';
 import { calculateTax } from '../../domain/calculators/tax-calculator';
+import { CashTransactionRepository } from '../../infrastructure/repositories/cash-transaction-repository';
 import { TradeRepository } from '../../infrastructure/repositories/trade-repository';
 import { UsdPlnRateService } from '../../infrastructure/services/usd-pln-rate';
 import type {
+  CashTransactionData,
+  DividendTaxResult,
   TaxConfig,
   TaxSummary,
   TaxReport,
@@ -20,8 +24,10 @@ import type {
 export class TaxCalculator {
   config: TaxConfig;
   private _tradeRepo: TradeRepository | null = null;
+  private _cashTransactionRepo: CashTransactionRepository | null = null;
   private _rateService: UsdPlnRateService | null = null;
   private _tradeData: TradeData | null = null;
+  private _cashTransactionData: CashTransactionData | null = null;
 
   constructor(config: TaxConfig = defaultConfig) {
     this.config = config;
@@ -35,6 +41,16 @@ export class TaxCalculator {
       this._tradeRepo = new TradeRepository();
     }
     return this._tradeRepo;
+  }
+
+  /**
+   * Lazy-init cash transaction repository
+   */
+  get cashTransactionRepo(): CashTransactionRepository {
+    if (!this._cashTransactionRepo) {
+      this._cashTransactionRepo = new CashTransactionRepository();
+    }
+    return this._cashTransactionRepo;
   }
 
   /**
@@ -67,10 +83,39 @@ export class TaxCalculator {
   }
 
   /**
+   * Load cash transaction data if path configured
+   */
+  async loadCashTransactionData(): Promise<CashTransactionData | null> {
+    if (this._cashTransactionData) return this._cashTransactionData;
+    if (!this.config.csvPaths.cashTransactions) return null;
+
+    this._cashTransactionData = await this.cashTransactionRepo.load(
+      this.config.csvPaths.cashTransactions
+    );
+    return this._cashTransactionData;
+  }
+
+  /**
+   * Calculate dividend tax if data available
+   */
+  async calculateDividendTax(): Promise<DividendTaxResult | undefined> {
+    const cashData = await this.loadCashTransactionData();
+    if (!cashData) return undefined;
+    return calculateDividendTax(cashData, this.rateService);
+  }
+
+  /**
    * Calculate tax - returns summary result
    */
   async calculateTax(): Promise<TaxSummary> {
-    const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
+    const [{ closedPositions, buyTradesMap, sellTrades }, cashData] = await Promise.all([
+      this.loadData(),
+      this.loadCashTransactionData(),
+    ]);
+
+    const dividendTax = cashData
+      ? calculateDividendTax(cashData, this.rateService)
+      : undefined;
 
     const profits = calculateProfits(closedPositions, this.rateService);
     const buyFees = calculateBuyFees(
@@ -87,6 +132,8 @@ export class TaxCalculator {
       this.config.taxRate
     );
 
+    const totalTaxOwed = taxOwed + (dividendTax?.taxOwedPln ?? 0);
+
     return {
       year: this.config.year,
       currency: 'PLN',
@@ -99,6 +146,8 @@ export class TaxCalculator {
       profitsUSD: profits.totalUsd,
       buyFeesUSD: buyFees.totalUsd,
       sellFeesUSD: sellFees.totalUsd,
+      dividendTax,
+      totalTaxOwed,
     };
   }
 
@@ -106,7 +155,14 @@ export class TaxCalculator {
    * Generate full report with details
    */
   async generateReport(): Promise<TaxReport> {
-    const { closedPositions, buyTradesMap, sellTrades } = await this.loadData();
+    const [{ closedPositions, buyTradesMap, sellTrades }, cashData] = await Promise.all([
+      this.loadData(),
+      this.loadCashTransactionData(),
+    ]);
+
+    const dividendTax = cashData
+      ? calculateDividendTax(cashData, this.rateService)
+      : undefined;
 
     const profits = calculateProfits(closedPositions, this.rateService);
     const buyFees = calculateBuyFees(
@@ -123,6 +179,8 @@ export class TaxCalculator {
       this.config.taxRate
     );
 
+    const totalTaxOwed = taxOwed + (dividendTax?.taxOwedPln ?? 0);
+
     return {
       year: this.config.year,
       currency: 'PLN',
@@ -135,6 +193,8 @@ export class TaxCalculator {
       profitsUSD: profits.totalUsd,
       buyFeesUSD: buyFees.totalUsd,
       sellFeesUSD: sellFees.totalUsd,
+      dividendTax,
+      totalTaxOwed,
       details: {
         profitBreakdown: profits.details,
         buyFeeBreakdown: buyFees.details,

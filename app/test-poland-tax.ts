@@ -6,6 +6,7 @@
  */
 
 import { generateReport } from './application';
+import { printReport } from './presentation/cli/console-reporter';
 import type { TaxReport } from './types';
 
 console.log('╔════════════════════════════════════════════════════════════════╗');
@@ -16,13 +17,13 @@ async function main(): Promise<void> {
   try {
     const report: TaxReport = await generateReport();
 
-    console.log('\n╔════════════════════════════════════════════════════════════════╗');
-    console.log('║                    FINAL TAX RESULT                            ║');
+    printReport(report);
+
+    console.log('╔════════════════════════════════════════════════════════════════╗');
+    console.log('║                    TOTAL TAX                                   ║');
     console.log('╚════════════════════════════════════════════════════════════════╝\n');
     console.log(`Year:           ${report.year.toString()}`);
-    console.log(`Tax Owed:       ${report.taxOwed.toFixed(2)} PLN`);
-    console.log(`Taxable Base:   ${report.taxableBase.toFixed(2)} PLN`);
-    console.log(`Tax Rate:       ${(report.taxRate * 100).toString()}%\n`);
+    console.log(`Total Tax:      ${report.totalTaxOwed.toFixed(2)} PLN\n`);
 
     console.log('Note: All USD amounts have been converted to PLN using the');
     console.log('      exchange rate from the day BEFORE each transaction.\n');

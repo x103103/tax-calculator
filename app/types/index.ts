@@ -25,6 +25,14 @@ export interface RateRow {
   rate: string;
 }
 
+export interface CashTransactionRow extends Record<string, string> {
+  Symbol: string;
+  Description: string;
+  'Date/Time': string;
+  Amount: string;
+  Type: string;
+}
+
 /**
  * Domain Types
  */
@@ -72,6 +80,48 @@ export interface FeeResult {
   details: FeeDetail[];
 }
 
+export interface DividendDetail {
+  symbol: string;
+  date: string;
+  amountUsd: number;
+  rate: number;
+  rateDate: string;
+  amountPln: number;
+}
+
+export interface WithholdingTaxDetail {
+  symbol: string;
+  date: string;
+  amountUsd: number;
+  rate: number;
+  rateDate: string;
+  amountPln: number;
+}
+
+export interface BrokerInterestDetail {
+  date: string;
+  amountUsd: number;
+  rate: number;
+  rateDate: string;
+  amountPln: number;
+}
+
+export interface DividendTaxResult {
+  dividends: { totalUsd: number; totalPln: number; details: DividendDetail[] };
+  withholdingTax: { totalUsd: number; totalPln: number; details: WithholdingTaxDetail[] };
+  brokerInterest: { totalUsd: number; totalPln: number; details: BrokerInterestDetail[] };
+  dividendTaxPln: number;
+  interestTaxPln: number;
+  withholdingCreditPln: number;
+  taxOwedPln: number;
+}
+
+export interface CashTransactionData {
+  dividends: CashTransactionRow[];
+  withholdingTax: CashTransactionRow[];
+  brokerInterest: CashTransactionRow[];
+}
+
 /**
  * Config Types
  */
@@ -79,6 +129,7 @@ export interface CsvPaths {
   closedPositions: string;
   trades: string[];
   rates: string;
+  cashTransactions?: string;
 }
 
 export interface TaxConfig {
@@ -110,6 +161,8 @@ export interface TaxSummary {
   profitsUSD: number;
   buyFeesUSD: number;
   sellFeesUSD: number;
+  dividendTax?: DividendTaxResult;
+  totalTaxOwed: number;
 }
 
 export interface TaxReport extends TaxSummary {
