@@ -6,6 +6,7 @@ import type {
   TradeRow,
 } from '../../types';
 import { loadCsv } from '../data/csv-loader';
+import { formatDate } from '../../domain/services/currency-converter';
 
 /**
  * Repository for loading and indexing trade data from CSV files
@@ -65,7 +66,7 @@ export class TradeRepository implements ITradeRepository {
    */
   #collectSellTrades(allTrades: TradeRow[], year: number): TradeRow[] {
     return allTrades.filter((t) => {
-      const tradeYear = new Date(t.TradeDate).getFullYear();
+      const tradeYear = new Date(formatDate(t.TradeDate)).getFullYear();
       return t['Buy/Sell'] === 'SELL' && tradeYear === year;
     });
   }
