@@ -7,7 +7,10 @@
 
 import { generateReport } from './application';
 import { printReport } from './presentation/cli/console-reporter';
+import { generatePdfReport } from './presentation/pdf';
 import type { TaxReport } from './types';
+
+const PDF_FLAG = '--pdf';
 
 console.log('╔════════════════════════════════════════════════════════════════╗');
 console.log('║           POLAND TAX CALCULATOR FOR 2025 (v2)                 ║');
@@ -16,6 +19,7 @@ console.log('╚═════════════════════�
 async function main(): Promise<void> {
   try {
     const report: TaxReport = await generateReport();
+    const shouldGeneratePdf = process.argv.includes(PDF_FLAG);
 
     printReport(report);
 
@@ -27,6 +31,12 @@ async function main(): Promise<void> {
 
     console.log('Note: All USD amounts have been converted to PLN using the');
     console.log('      exchange rate from the day BEFORE each transaction.\n');
+
+    if (shouldGeneratePdf) {
+      const pdfPath = `tmp/data/reports/tax-report-${report.year}.pdf`;
+      await generatePdfReport(report, pdfPath);
+      console.log(`📄 PDF report generated: ${pdfPath}\n`);
+    }
 
     process.exit(0);
   } catch (error) {
