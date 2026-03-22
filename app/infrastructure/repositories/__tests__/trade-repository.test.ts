@@ -31,14 +31,14 @@ describe('TradeRepository', () => {
       expect(mockedLoadCsv).toHaveBeenCalledWith(config.tradesPaths[1]);
     });
 
-    it('filters by TRNT === "TRNT"', async () => {
+    it('filters by AssetClass === "STK"', async () => {
       const closedData = [
-        { Symbol: 'GOOG', TRNT: 'TRNT' },
-        { Symbol: 'AAPL', TRNT: 'OTHER' },
-        { Symbol: 'MSFT', TRNT: 'TRNT' },
+        { Symbol: 'GOOG', AssetClass: 'STK' },
+        { Symbol: 'EUR.USD', AssetClass: 'CASH' },
+        { Symbol: 'MSFT', AssetClass: 'STK' },
       ] as ClosedPositionRow[];
-      const trades2024 = [{ Symbol: 'AMD', TRNT: 'SKIP' }] as TradeRow[];
-      const trades2025 = [{ Symbol: 'NVDA', TRNT: 'TRNT' }] as TradeRow[];
+      const trades2024 = [{ Symbol: 'AMD', AssetClass: 'CASH' }] as TradeRow[];
+      const trades2025 = [{ Symbol: 'NVDA', AssetClass: 'STK' }] as TradeRow[];
 
       mockedLoadCsv
         .mockResolvedValueOnce(closedData)
@@ -54,11 +54,11 @@ describe('TradeRepository', () => {
     it('builds buyTradesMap with TransactionID key from all trade files', async () => {
       const closedData: ClosedPositionRow[] = [];
       const trades2024 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
-        { Symbol: 'AAPL', DateTime: '20240615', TransactionID: 'TXN002', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', AssetClass: 'STK', 'Buy/Sell': 'BUY' },
+        { Symbol: 'AAPL', DateTime: '20240615', TransactionID: 'TXN002', AssetClass: 'STK', 'Buy/Sell': 'BUY' },
       ] as TradeRow[];
       const trades2025 = [
-        { Symbol: 'MSFT', DateTime: '20250110', TransactionID: 'TXN003', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
+        { Symbol: 'MSFT', DateTime: '20250110', TransactionID: 'TXN003', AssetClass: 'STK', 'Buy/Sell': 'BUY' },
       ] as TradeRow[];
 
       mockedLoadCsv
@@ -76,10 +76,10 @@ describe('TradeRepository', () => {
 
     it('later trades overwrite earlier trades in buyTradesMap for same key', async () => {
       const trades2024 = [
-        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2024' },
+        { Symbol: 'GOOG', DateTime: '20240101', TransactionID: 'TXN001', AssetClass: 'STK', source: '2024' },
       ] as any[];
       const trades2025 = [
-        { Symbol: 'GOOG', DateTime: '20250101', TransactionID: 'TXN001', TRNT: 'TRNT', source: '2025' },
+        { Symbol: 'GOOG', DateTime: '20250101', TransactionID: 'TXN001', AssetClass: 'STK', source: '2025' },
       ] as any[];
 
       mockedLoadCsv
@@ -95,12 +95,12 @@ describe('TradeRepository', () => {
 
     it('collects SELL trades from the specified year only', async () => {
       const trades2024 = [
-        { Symbol: 'OLD', TradeDate: '01/01/2024', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
+        { Symbol: 'OLD', TradeDate: '01/01/2024', AssetClass: 'STK', 'Buy/Sell': 'SELL' },
       ] as TradeRow[];
       const trades2025 = [
-        { Symbol: 'GOOG', TradeDate: '01/15/2025', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
-        { Symbol: 'AAPL', TradeDate: '01/16/2025', TRNT: 'TRNT', 'Buy/Sell': 'BUY' },
-        { Symbol: 'MSFT', TradeDate: '01/17/2025', TRNT: 'TRNT', 'Buy/Sell': 'SELL' },
+        { Symbol: 'GOOG', TradeDate: '01/15/2025', AssetClass: 'STK', 'Buy/Sell': 'SELL' },
+        { Symbol: 'AAPL', TradeDate: '01/16/2025', AssetClass: 'STK', 'Buy/Sell': 'BUY' },
+        { Symbol: 'MSFT', TradeDate: '01/17/2025', AssetClass: 'STK', 'Buy/Sell': 'SELL' },
       ] as TradeRow[];
 
       mockedLoadCsv
@@ -135,4 +135,3 @@ describe('TradeRepository', () => {
     });
   });
 });
-

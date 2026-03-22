@@ -25,8 +25,8 @@ export class TradeRepository implements ITradeRepository {
       ...tradesPaths.map((path) => loadCsv<TradeRow>(path)),
     ]);
 
-    const closedPositions = this.#filterTrnt(closedRaw);
-    const allTrades = this.#filterTrnt(tradesRaw.flat());
+    const closedPositions = this.#filterStockTrades(closedRaw);
+    const allTrades = this.#filterStockTrades(tradesRaw.flat());
 
     const buyTradesMap = this.#buildBuyTradesMap(allTrades);
     const sellTrades = this.#collectSellTrades(allTrades, year);
@@ -39,10 +39,10 @@ export class TradeRepository implements ITradeRepository {
   }
 
   /**
-   * Filter records where TRNT === 'TRNT'
+   * Filter to only stock trades (excludes CASH, etc.)
    */
-  #filterTrnt<T extends { TRNT: string }>(records: T[]): T[] {
-    return records.filter((r) => r.TRNT === 'TRNT');
+  #filterStockTrades<T extends { AssetClass: string }>(records: T[]): T[] {
+    return records.filter((r) => r.AssetClass === 'STK');
   }
 
   /**

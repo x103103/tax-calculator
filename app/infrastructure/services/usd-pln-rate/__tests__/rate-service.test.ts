@@ -22,13 +22,18 @@ describe('UsdPlnRateService', () => {
   });
 
   describe('constructor', () => {
-    it('throws if csvPath not provided', () => {
-      expect(() => new (UsdPlnRateService as unknown as new (path?: string) => UsdPlnRateService)()).toThrow('csvPath is required');
+    it('throws if csvPaths is empty array', () => {
+      expect(() => new UsdPlnRateService([])).toThrow('csvPaths is required');
     });
 
-    it('accepts custom csvPath', () => {
+    it('accepts single csvPath string', () => {
       const service = new UsdPlnRateService('/custom/path.csv');
       expect(service.csvPath).toBe('/custom/path.csv');
+    });
+
+    it('accepts array of csvPaths', () => {
+      const service = new UsdPlnRateService(['/custom/rates_2024.csv', '/custom/rates_2025.csv']);
+      expect(service.csvPath).toBe('/custom/rates_2024.csv');
     });
 
     it('does not load rates in constructor', () => {

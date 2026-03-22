@@ -7,16 +7,19 @@ import path from 'path';
 
 import type { TaxConfig, ConfigOverrides } from '../types';
 
-const DATA_DIR = path.join(__dirname, '../../tmp/data/spreadsheet-tabs');
+const DATA_DIR = path.join(__dirname, '../../tmp/data/alex');
+const RATES_DIR = path.join(__dirname, '../../tmp/data/rates');
 
 export function createConfig(overrides?: ConfigOverrides): TaxConfig {
+  const dataDir = overrides?.dataDir ?? DATA_DIR;
+
   const defaults: TaxConfig = {
-    dataDir: DATA_DIR,
+    dataDir,
     csvPaths: {
-      closedPositions: path.join(DATA_DIR, 'closed_2025.csv'),
-      trades: [path.join(DATA_DIR, 'trades_2024.csv'), path.join(DATA_DIR, 'trades_2025.csv')],
-      rates: path.join(DATA_DIR, 'rates.csv'),
-      cashTransactions: path.join(DATA_DIR, 'all_cash_transactions.csv'),
+      closedPositions: path.join(dataDir, 'all_closed_trades.csv'),
+      trades: [path.join(dataDir, 'all_trades_2024.csv'), path.join(dataDir, 'all_trades_2025.csv')],
+      rates: [path.join(RATES_DIR, 'rates_2024.csv'), path.join(RATES_DIR, 'rates_2025.csv')],
+      cashTransactions: path.join(dataDir, 'all_cash_transactions.csv'),
     },
     taxRate: 0.19,
     year: 2025,

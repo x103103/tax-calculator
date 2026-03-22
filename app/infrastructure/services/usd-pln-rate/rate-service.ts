@@ -7,23 +7,24 @@ import type { IRateService, RateInfo } from '../../../types';
  * Retrieves exchange rates with recursive fallback to previous days
  */
 export class UsdPlnRateService implements IRateService {
-  #csvPath: string;
+  #csvPaths: string[];
   #rates: Map<string, number> = new Map();
   #loaded: boolean = false;
 
   /**
-   * @param csvPath - Path to the CSV file containing rates
+   * @param csvPaths - Path(s) to CSV file(s) containing rates
    */
-  constructor(csvPath: string) {
-    if (!csvPath) {
-      throw new Error('csvPath is required');
+  constructor(csvPaths: string | string[]) {
+    const paths = Array.isArray(csvPaths) ? csvPaths : [csvPaths];
+    if (paths.length === 0) {
+      throw new Error('csvPaths is required');
     }
-    this.#csvPath = csvPath;
+    this.#csvPaths = paths;
   }
 
   // Public accessors for testing (matching original behavior)
   get csvPath(): string {
-    return this.#csvPath;
+    return this.#csvPaths[0];
   }
 
   get rates(): Map<string, number> {
@@ -39,28 +40,30 @@ export class UsdPlnRateService implements IRateService {
    * Must be called after construction before using other methods
    */
   async load(): Promise<void> {
-    try {
-      const csvData = await fs.readFile(this.#csvPath, 'utf-8');
-      const lines = csvData.trim().split('\n');
+    this.#rates.clear();
 
-      this.#rates.clear();
+    for (const csvPath of this.#csvPaths) {
+      try {
+        const csvData = await fs.readFile(csvPath, 'utf-8');
+        const lines = csvData.trim().split('\n');
 
-      // Skip header line
-      for (let i = 1; i < lines.length; i++) {
-        const [date, rate] = lines[i].split(',');
-        if (date && rate) {
-          this.#rates.set(date.trim(), parseFloat(rate.trim()));
+        // Skip header line
+        for (let i = 1; i < lines.length; i++) {
+          const [date, rate] = lines[i].split(',');
+          if (date && rate) {
+            this.#rates.set(date.trim(), parseFloat(rate.trim()));
+          }
         }
+      } catch (error) {
+        throw new Error(
+          `Failed to load rates from ${csvPath}: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
       }
-
-      this.#loaded = true;
-    } catch (error) {
-      throw new Error(
-        `Failed to load rates from ${this.#csvPath}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
     }
+
+    this.#loaded = true;
   }
 
   /**

@@ -2,15 +2,23 @@
 
 /**
  * Test script for Poland Tax Calculator v2
- * Usage: node app/test-poland-tax.ts or npm run dev
+ * Usage: pnpm run dev -- --data-dir tmp/data/alex --pdf
  */
 
+import path from 'path';
 import { generateReport } from './application';
 import { printReport } from './presentation/cli/console-reporter';
 import { generatePdfReport } from './presentation/pdf';
-import type { TaxReport } from './types';
+import type { ConfigOverrides } from './types';
 
 const PDF_FLAG = '--pdf';
+const DATA_DIR_FLAG = '--data-dir';
+
+function parseDataDir(): string | undefined {
+  const idx = process.argv.indexOf(DATA_DIR_FLAG);
+  if (idx === -1 || idx + 1 >= process.argv.length) return undefined;
+  return path.resolve(process.argv[idx + 1]);
+}
 
 console.log('╔════════════════════════════════════════════════════════════════╗');
 console.log('║           POLAND TAX CALCULATOR FOR 2025 (v2)                 ║');
@@ -18,7 +26,10 @@ console.log('╚═════════════════════�
 
 async function main(): Promise<void> {
   try {
-    const report: TaxReport = await generateReport();
+    const dataDir = parseDataDir();
+    const overrides: ConfigOverrides | undefined = dataDir ? { dataDir } : undefined;
+
+    const report = await generateReport(overrides);
     const shouldGeneratePdf = process.argv.includes(PDF_FLAG);
 
     printReport(report);
@@ -33,16 +44,17 @@ async function main(): Promise<void> {
     console.log('      exchange rate from the day BEFORE each transaction.\n');
 
     if (shouldGeneratePdf) {
-      const pdfPath = `tmp/data/reports/tax-report-${report.year}.pdf`;
+      const outputDir = dataDir ?? 'tmp/data/reports';
+      const pdfPath = path.join(outputDir, `tax-report-${report.year}.pdf`);
       await generatePdfReport(report, pdfPath);
-      console.log(`📄 PDF report generated: ${pdfPath}\n`);
+      console.log(`PDF report generated: ${pdfPath}\n`);
     }
 
     process.exit(0);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';
-    console.error('\n❌ ERROR:', errorMessage);
+    console.error('\nERROR:', errorMessage);
     if (errorStack !== undefined && errorStack !== '') console.error(errorStack);
     process.exit(1);
   }

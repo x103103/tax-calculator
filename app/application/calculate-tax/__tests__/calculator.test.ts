@@ -11,7 +11,7 @@ const testConfig = createConfig({
       path.join(fixturesDir, 'trades_2024.csv'),
       path.join(fixturesDir, 'trades_2025.csv'),
     ],
-    rates: path.join(fixturesDir, 'rates.csv'),
+    rates: [path.join(fixturesDir, 'rates.csv')],
     cashTransactions: undefined,
   },
 });
@@ -119,7 +119,7 @@ describe('TaxCalculator', () => {
         csvPaths: {
           closedPositions: '/nonexistent/closed.csv',
           trades: ['/nonexistent/2024.csv', '/nonexistent/2025.csv'],
-          rates: '/nonexistent/rates.csv',
+          rates: ['/nonexistent/rates.csv'],
         },
       });
       const calc = new TaxCalculator(badConfig);

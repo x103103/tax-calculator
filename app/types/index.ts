@@ -7,7 +7,7 @@ export interface ClosedPositionRow extends Record<string, string> {
   TradeDate: string;
   OpenDateTime: string;
   TransactionID: string;
-  TRNT: string;
+  AssetClass: string;
 }
 
 export interface TradeRow extends Record<string, string> {
@@ -17,7 +17,7 @@ export interface TradeRow extends Record<string, string> {
   TransactionID: string;
   IBCommission: string;
   'Buy/Sell': 'BUY' | 'SELL';
-  TRNT: string;
+  AssetClass: string;
 }
 
 export interface RateRow {
@@ -128,7 +128,7 @@ export interface CashTransactionData {
 export interface CsvPaths {
   closedPositions: string;
   trades: string[];
-  rates: string;
+  rates: string[];
   cashTransactions?: string;
 }
 
