@@ -9,6 +9,7 @@ import path from 'path';
 import { generateReport } from './application';
 import { printReport } from './presentation/cli/console-reporter';
 import { generatePdfReport } from './presentation/pdf';
+import { exportBreakdownCsvs } from './presentation/csv';
 import type { ConfigOverrides } from './types';
 
 const PDF_FLAG = '--pdf';
@@ -47,7 +48,13 @@ async function main(): Promise<void> {
       const outputDir = dataDir ?? 'tmp/data/reports';
       const pdfPath = path.join(outputDir, `tax-report-${report.year}.pdf`);
       await generatePdfReport(report, pdfPath);
-      console.log(`PDF report generated: ${pdfPath}\n`);
+      console.log(`PDF report generated: ${pdfPath}`);
+
+      const csvPaths = exportBreakdownCsvs(report, outputDir);
+      for (const csvPath of csvPaths) {
+        console.log(`CSV breakdown generated: ${csvPath}`);
+      }
+      console.log();
     }
 
     process.exit(0);

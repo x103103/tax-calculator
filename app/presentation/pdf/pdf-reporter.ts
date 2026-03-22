@@ -5,11 +5,7 @@
 import PDFDocument from 'pdfkit';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { TaxReport, TaxSummary, ProfitDetail, FeeDetail } from '../../types';
-
-function isTaxReport(report: TaxReport | TaxSummary): report is TaxReport {
-  return 'details' in report;
-}
+import type { TaxSummary } from '../../types';
 
 function formatPln(amount: number): string {
   return amount.toFixed(2) + ' PLN';
@@ -20,7 +16,7 @@ function formatUsd(amount: number): string {
 }
 
 export async function generatePdfReport(
-  report: TaxReport | TaxSummary,
+  report: TaxSummary,
   outputPath: string
 ): Promise<void> {
   const dir = path.dirname(outputPath);
@@ -93,108 +89,6 @@ export async function generatePdfReport(
     doc.fontSize(14).font('Helvetica-Bold').text(formatPln(report.totalTaxOwed));
     doc.moveDown(2);
 
-    // Transaction Tables (only for full TaxReport)
-    if (isTaxReport(report)) {
-      addTransactionTables(doc, report);
-    }
-
     doc.end();
   });
-}
-
-function addTransactionTables(doc: PDFKit.PDFDocument, report: TaxReport): void {
-  // Profit Breakdown
-  if (report.details.profitBreakdown.length > 0) {
-    doc.addPage();
-    doc.fontSize(16).font('Helvetica-Bold').text('Profit Breakdown', { underline: true });
-    doc.moveDown();
-
-    addProfitTable(doc, report.details.profitBreakdown);
-  }
-
-  // Buy Fee Breakdown
-  if (report.details.buyFeeBreakdown.length > 0) {
-    doc.addPage();
-    doc.fontSize(16).font('Helvetica-Bold').text('Buy Fee Breakdown', { underline: true });
-    doc.moveDown();
-
-    addFeeTable(doc, report.details.buyFeeBreakdown, 'buy');
-  }
-
-  // Sell Fee Breakdown
-  if (report.details.sellFeeBreakdown.length > 0) {
-    doc.addPage();
-    doc.fontSize(16).font('Helvetica-Bold').text('Sell Fee Breakdown', { underline: true });
-    doc.moveDown();
-
-    addFeeTable(doc, report.details.sellFeeBreakdown, 'sell');
-  }
-}
-
-function addProfitTable(doc: PDFKit.PDFDocument, profits: ProfitDetail[]): void {
-  const headers = ['Symbol', 'Trade Date', 'Profit USD', 'Rate', 'Rate Date', 'Profit PLN'];
-  const colWidths = [70, 80, 70, 50, 80, 80];
-
-  addTableHeader(doc, headers, colWidths);
-
-  for (const p of profits) {
-    const row = [
-      p.symbol,
-      p.tradeDate,
-      p.profitUsd.toFixed(2),
-      p.rate.toFixed(4),
-      p.rateDate,
-      p.profitPln.toFixed(2),
-    ];
-    addTableRow(doc, row, colWidths);
-  }
-}
-
-function addFeeTable(doc: PDFKit.PDFDocument, fees: FeeDetail[], type: 'buy' | 'sell'): void {
-  const dateLabel = type === 'buy' ? 'Buy Date' : 'Sell Date';
-  const headers = ['Symbol', dateLabel, 'Fee USD', 'Rate', 'Rate Date', 'Fee PLN'];
-  const colWidths = [70, 80, 70, 50, 80, 80];
-
-  addTableHeader(doc, headers, colWidths);
-
-  for (const f of fees) {
-    const date = type === 'buy' ? f.buyDate ?? '' : f.sellDate ?? '';
-    const row = [
-      f.symbol,
-      date,
-      f.feeUsd.toFixed(2),
-      f.rate.toFixed(4),
-      f.rateDate,
-      f.feePln.toFixed(2),
-    ];
-    addTableRow(doc, row, colWidths);
-  }
-}
-
-function addTableHeader(doc: PDFKit.PDFDocument, headers: string[], colWidths: number[]): void {
-  doc.fontSize(9).font('Helvetica-Bold');
-  let x = 50;
-  for (let i = 0; i < headers.length; i++) {
-    doc.text(headers[i], x, doc.y, { width: colWidths[i], continued: i < headers.length - 1 });
-    x += colWidths[i];
-  }
-  doc.moveDown(0.5);
-  doc.font('Helvetica');
-}
-
-function addTableRow(doc: PDFKit.PDFDocument, values: string[], colWidths: number[]): void {
-  doc.fontSize(8);
-  const startY = doc.y;
-
-  // Check if we need a new page
-  if (startY > 700) {
-    doc.addPage();
-  }
-
-  let x = 50;
-  for (let i = 0; i < values.length; i++) {
-    doc.text(values[i], x, doc.y, { width: colWidths[i], continued: i < values.length - 1 });
-    x += colWidths[i];
-  }
-  doc.moveDown(0.3);
 }
